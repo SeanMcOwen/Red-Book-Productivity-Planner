@@ -1,0 +1,7 @@
+Goals.db
+.DS_Store
+*.DS_Store
+*.csv
+*.pyc
+__pycache__
+*.db

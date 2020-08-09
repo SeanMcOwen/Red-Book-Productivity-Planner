@@ -1,0 +1,81 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+
+<form action={{ url_for('goals.goals_page') }} method="POST" >
+<select name="goal" id="goal">
+  {% for g in goals %}
+   <option value="{{g}}">{{g}}</option>
+  {% endfor %}
+
+</select>
+<input type="submit" value="Load">
+</form>
+
+
+
+
+{% if goal_data %}
+<table>
+  <tr>
+    <td>
+      Goal Name
+      </td>
+      <td>
+        Group
+        </td>
+    <td>
+      Start Date
+      </td>
+      <td>
+        End Date
+        </td>
+    </tr>
+  <tr>
+    <td>
+      {{goal_data["Goal Name"]}}
+      </td>
+      <td>
+        {{goal_data["Group"]}}
+        </td>
+    <td>
+      {{goal_data["Start Date"]}}
+      </td>
+      <td>
+        {{goal_data["End Date"]}}
+        </td>
+    </tr>
+      <tr>
+    <td>
+      Start Progress
+      </td>
+      <td>
+        Current Progress
+        </td>
+    <td>
+      Goal Progress
+      </td>
+      <td>
+      Percent Complete
+        </td>
+    </tr>
+      <tr>
+    <td>
+      {{goal_data["Start Progress"]}}
+      </td>
+      <td>
+        {{goal_data["Current Progress"]}}
+        </td>
+    <td>
+      {{goal_data["Goal Progress"]}}
+      </td>
+      <td>
+      {{goal_data["Percent Complete"]}}
+        </td>
+    </tr>
+  </table>
+    {{ scheduleScript|safe }}
+{% endif %}
+
+{% endblock %}
