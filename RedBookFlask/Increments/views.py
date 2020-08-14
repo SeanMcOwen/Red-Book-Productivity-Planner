@@ -18,7 +18,6 @@ increments_blueprint = Blueprint('increments',
 def increments_page():
     with sqlite3.connect(database_name) as conn:
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
-        goals = goals[goals['Group'] != 'Fitness']
         expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
         expected_progress_table_today = RedBook.Tables.build_expected_work_tables_today(goals)
     tables = ""

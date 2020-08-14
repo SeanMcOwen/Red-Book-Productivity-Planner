@@ -75,7 +75,31 @@
         </td>
     </tr>
   </table>
-    {{ scheduleScript|safe }}
+
+  
+  <p>
+  <a class="btn btn-primary" data-toggle="collapse" href="#increments" role="button" aria-expanded="false" aria-controls="increments">
+    Increments
+  </a>
+</p>
+<div class="collapse" id="increments">
+  <div class="card card-body">
+{{increment_table|safe}}
+  </div>
+</div>
+  
+  <p>
+  <a class="btn btn-primary" data-toggle="collapse" href="#pChart" role="button" aria-expanded="false" aria-controls="pChart">
+    Progress Chart
+  </a>
+</p>
+<div class="collapse" id="pChart">
+  <div class="card card-body">
+{{ scheduleScript|safe }}
+  </div>
+</div>
+  
+    
 {% endif %}
 
 {% endblock %}
