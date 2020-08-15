@@ -40,6 +40,10 @@ def goals_page():
         increment_table = pd.concat([x.loc[goal_name] for x in expected_work_tables.values()], axis=1).transpose()
         increment_table.index = list(expected_work_tables.keys())
         
+        increment_table2 = pd.concat([x.loc[goal_name] for x in expected_progress_table_today.values()], axis=1).transpose()
+        increment_table2.index = list(expected_progress_table_today.keys())
+        
+        
         current_table = increment_table.copy()
         current_table = current_table.dropna()
         if 'Percent Left' in current_table.columns:
@@ -47,11 +51,22 @@ def goals_page():
             current_table = current_table.round(2)
             current_table['Percent Left'] = current_table['Percent Left'].astype(str) +"%"
         increment_table_html = current_table.to_html()
+        
+        current_table = increment_table2.copy()
+        current_table = current_table.dropna()
+        if 'Percent Left' in current_table.columns:
+            current_table['Percent Left'] = current_table['Percent Left'] * 100
+            current_table = current_table.round(2)
+            current_table['Percent Left'] = current_table['Percent Left'].astype(str) +"%"
+        increment_table_html2 = current_table.to_html()
+        
         scheduleScript = server_document('http://localhost:5006/schedules',
                                          arguments={'goal_name': goal_name})
         
         return render_template("Goals.html",goals=goal_names, template="Flask",
-                               goal_data=goal_data, increment_table = increment_table_html,scheduleScript=scheduleScript)
+                               goal_data=goal_data, increment_table = increment_table_html,
+                               increment_table2 = increment_table_html2,
+                               scheduleScript=scheduleScript)
         
     return render_template("Goals.html",goals=list(goals['Goal Name'].values), template="Flask")
 
