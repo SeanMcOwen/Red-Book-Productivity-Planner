@@ -120,6 +120,31 @@ def goals_page():
     #form.update_choices()
     return render_template("Create/Goals.html", form=form, template="Flask")
 
+
+@create_blueprint.route("/Group",methods=['GET', 'POST'])
+def group_page():
+    form = GroupForm()
+    if form.validate_on_submit():
+        group_name = form.group_name.data
+        current_date = datetime.now()
+        group_data = pd.DataFrame([[group_name, current_date]],
+                     columns = ['Group', 'Creation Date'])
+        with sqlite3.connect(database_name) as conn:
+            try:
+                temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
+            except:
+                temp = []
+            if group_data['Group'].iloc[0] not in temp:
+                group_data.to_sql("groups", conn, if_exists='append', index=False)
+                group_data = pd.read_sql("SELECT * FROM groups", conn)
+                group_data.to_csv("Group.csv")
+        render_template("Create/Group.html", cur_groups=temp, form=form,template="Flask")
+    try:
+        temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
+    except:
+        temp = []
+    return render_template("Create/Group.html", form=form, cur_groups=temp,template="Flask")
+
 @create_blueprint.route("/Update Progress",methods=['GET', 'POST'])
 def update_progress_page():
     with sqlite3.connect(database_name) as conn:
@@ -207,7 +232,7 @@ class GoalForm(FlaskForm):
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = cursor.fetchall()
             tables = [x[0] for x in tables]
-            if len(tables) == 0:
+            if 'goals' not in tables:
                 existing_groups = ['General']
                 existing_progress = ['General']
             else:
@@ -240,6 +265,10 @@ class GoalForm(FlaskForm):
     year = BooleanField('Year', default=True)
     historical = BooleanField("Historical", default=True)
     submit = SubmitField('Submit')
-    
+
+
+class GroupForm(FlaskForm):
+    group_name = StringField('Group Name', validators=[DataRequired()])
+    submit = SubmitField('Create Group')
 
     

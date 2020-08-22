@@ -1,13 +1,11 @@
 import pandas as pd
 from RedBook.Classes.Goal import Goal
-from datetime import datetime
 
     
 def pull_goals_data_SQL(conn):
     df = pd.read_sql("SELECT * FROM goals", conn)
     df['Start Date'] = pd.to_datetime(df['Start Date'])
     df['End Date'] = pd.to_datetime(df['End Date'])
-    df = df[df['Start Date'] <= datetime.now()]
     df = df[df['Progress Type'].isin(['Progress', 'Add'])]
     return df
 
