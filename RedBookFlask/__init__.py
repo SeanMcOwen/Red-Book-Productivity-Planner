@@ -18,8 +18,7 @@ database_name = 'Goals.db'
        'Today', 'Week', 'Month', 'Quarter', 'Year', 'Historical']
     pd.DataFrame([], columns=cols).to_csv("Goals.csv")"""
 with sqlite3.connect(database_name) as conn:
-    if "Goals.csv" in os.listdir("."):
-        excel_to_db(conn)
+    excel_to_db(conn)
 app = Flask(__name__)
 
 

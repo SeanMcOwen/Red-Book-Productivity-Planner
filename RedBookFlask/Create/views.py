@@ -140,7 +140,8 @@ def group_page():
                 group_data.to_csv("Group.csv")
         render_template("Create/Group.html", cur_groups=temp, form=form,template="Flask")
     try:
-        temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
+        with sqlite3.connect(database_name) as conn:
+            temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
     except:
         temp = []
     return render_template("Create/Group.html", form=form, cur_groups=temp,template="Flask")
