@@ -146,6 +146,35 @@ def group_page():
         temp = []
     return render_template("Create/Group.html", form=form, cur_groups=temp,template="Flask")
 
+@create_blueprint.route("/Progress",methods=['GET', 'POST'])
+def progress_page():
+    form = ProgressForm()
+    if form.validate_on_submit():
+        
+        #ADD A CHECK TO MAKE SURE IT IS NOT ALREADY IN THERE
+        
+        group_name = form.group_name.data
+        current_date = datetime.now()
+        group_data = pd.DataFrame([[group_name, current_date]],
+                     columns = ['Group', 'Creation Date'])
+        with sqlite3.connect(database_name) as conn:
+            try:
+                temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
+            except:
+                temp = []
+            if group_data['Group'].iloc[0] not in temp:
+                group_data.to_sql("groups", conn, if_exists='append', index=False)
+                group_data = pd.read_sql("SELECT * FROM groups", conn)
+                group_data.to_csv("Group.csv")
+        render_template("Create/Group.html", cur_groups=temp, form=form,template="Flask")
+    #try:
+    #    with sqlite3.connect(database_name) as conn:
+    #        temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
+    #except:
+    #    temp = []
+    return render_template("Create/Progress.html", form=form, template="Flask")
+
+
 @create_blueprint.route("/Update Progress",methods=['GET', 'POST'])
 def update_progress_page():
     with sqlite3.connect(database_name) as conn:
@@ -272,4 +301,9 @@ class GroupForm(FlaskForm):
     group_name = StringField('Group Name', validators=[DataRequired()])
     submit = SubmitField('Create Group')
 
-    
+
+class ProgressForm(FlaskForm):
+    group_name = StringField('Progress Name', validators=[DataRequired()])
+    progress_type = SelectField('Progress Type', choices=[(x, x) for x in ["Add", "Progress"]])
+    units = FloatField("Units", default=1)
+    submit = SubmitField('Create Progress')

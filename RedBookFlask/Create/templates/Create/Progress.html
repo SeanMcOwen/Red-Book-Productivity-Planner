@@ -1,0 +1,25 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+{% for message in get_flashed_messages() %}
+<div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ message }}
+</div>
+{% endfor %}
+
+<form method="POST" action="Group">
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+    {{ form.group_name.label }} {{ form.group_name() }}<br><br>
+    {{ form.units.label }} {{ form.units() }}<br>
+    {{ form.progress_type.label }} {{ form.progress_type() }}<br>
+    {{ form.submit() }}
+</form>
+
+<br>
+<br>
+
+
+{% endblock %}
