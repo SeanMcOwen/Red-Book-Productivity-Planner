@@ -9,12 +9,13 @@
 </div>
 {% endfor %}
 
-<form method="POST" action="Group">
+<form method="POST" action="Progress">
     {{ form.csrf_token }}
     {{ form.hidden_tag() }}
-    {{ form.group_name.label }} {{ form.group_name() }}<br><br>
+    {{ form.progress_name.label }} {{ form.progress_name() }}<br>
     {{ form.units.label }} {{ form.units() }}<br>
     {{ form.progress_type.label }} {{ form.progress_type() }}<br>
+    {{ form.starting_value.label }} {{ form.starting_value() }}<br>
     {{ form.submit() }}
 </form>
 

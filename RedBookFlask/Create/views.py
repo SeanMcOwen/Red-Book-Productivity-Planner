@@ -32,13 +32,10 @@ def flash_errors(form):
 
 def form_to_pandas(form):
     data = {"Goal Name": form.goal_name.data,
-            "Start Progress": form.start_progress.data,
             "Goal Progress": form.end_progress.data,
             "Start Date": pd.to_datetime(form.start_date.data),
             "End Date": pd.to_datetime(form.end_date.data),
-            "Progress Type": form.progress_type.data,
             "Completed": "",
-            "Units": form.units.data,
             "Today": form.today.data,
             "Week": form.week.data,
             "Month": form.month.data,
@@ -46,15 +43,12 @@ def form_to_pandas(form):
             "Year": form.year.data,
             "Historical": form.historical.data
             }
-    if form.existing_bool.data:
-        data['Group'] = form.group_name_select.data
-    else:
-        data['Group'] = form.group_name.data
-    if form.existing_bool2.data:
-        data['Progress Name'] = form.progress_name_select.data
-    else:
-        data['Progress Name'] = form.progress_name.data
+    data['Group'] = form.group_name_select.data
+    data['Progress Name'] = form.progress_name_select.data
+
     data['Goal #'] = -1
+    
+
     
     data = pd.Series(data)
     return data
@@ -66,7 +60,6 @@ def goals_page():
     if form.validate_on_submit():
         goals = form_to_pandas(form).to_frame().transpose()
 
-        progress_name = goals['Progress Name'].iloc[0]
         with sqlite3.connect(database_name) as conn:
             goals.to_sql("goals", conn, if_exists='append', index=False)
             df = pd.read_sql("SELECT * FROM goals", conn)
@@ -74,43 +67,9 @@ def goals_page():
             df['End Date'] = pd.to_datetime(df['End Date'])
             df.to_csv("Goals.csv", index=False)
             
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = cursor.fetchall()
-            tables = [x[0] for x in tables]
+
             
-            if "progress" in tables:
-                df = pd.read_sql("SELECT * FROM progress", conn)
-                if progress_name in df['Goal Name'].values:
-                    pass
-                else:
-                    progress_type = goals['Progress Type'].iloc[0]
-                    if progress_type == "Add":
-                        value = 0
-                    elif progress_type == 'Progress':
-                        value = goals['Start Progress']
-                    else:
-                        assert False
-                    add_on = pd.Series([pd.to_datetime(datetime.now().date()),
-                                     progress_name,
-                                     value
-                                     ], index=['Date', 'Goal Name', 'Value']).to_frame().transpose()
-                    add_on.to_sql("progress", conn, if_exists='append', index=False)
-            else:
-                progress_type = goals['Progress Type'].iloc[0]
-                if progress_type == "Add":
-                    value = 0
-                elif progress_type == 'Progress':
-                    value = goals['Start Progress']
-                else:
-                    assert False
-                add_on = pd.Series([pd.to_datetime(datetime.now().date()),
-                                     progress_name,
-                                     value
-                                     ], index=['Date', 'Goal Name', 'Value']).to_frame().transpose()
-                add_on.to_sql("progress", conn, if_exists='append', index=False)
-            df = pd.read_sql("SELECT * FROM progress", conn).pivot("Date", "Goal Name", "Value")
-            df.to_csv("project_log.csv")
+
         #form.update_choices()
         #form = GoalForm()
         form.group_name_select.choices, form.progress_name_select.choices = update_choices()
@@ -153,20 +112,27 @@ def progress_page():
         
         #ADD A CHECK TO MAKE SURE IT IS NOT ALREADY IN THERE
         
-        group_name = form.group_name.data
-        current_date = datetime.now()
-        group_data = pd.DataFrame([[group_name, current_date]],
-                     columns = ['Group', 'Creation Date'])
+
+        progress_name = form.progress_name.data
+        progress_type = form.progress_type.data
+        units = form.units.data
+        starting_value = form.starting_value.data
+        add = pd.Series([pd.to_datetime((datetime.now() - pd.Timedelta("1D")).date()),
+                                     progress_name,
+                                     starting_value
+                                     ], index=['Date', 'Goal Name', 'Value']).to_frame().transpose()
+        add2 = pd.Series([progress_name,
+                                     units, progress_type
+                                     ], index=['Goal Name', 'Units', 'Progress Type']).to_frame().transpose()
         with sqlite3.connect(database_name) as conn:
-            try:
-                temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
-            except:
-                temp = []
-            if group_data['Group'].iloc[0] not in temp:
-                group_data.to_sql("groups", conn, if_exists='append', index=False)
-                group_data = pd.read_sql("SELECT * FROM groups", conn)
-                group_data.to_csv("Group.csv")
-        render_template("Create/Group.html", cur_groups=temp, form=form,template="Flask")
+            add.to_sql("progress", conn, if_exists='append', index=False)
+            df = pd.read_sql("SELECT * FROM progress", conn).pivot("Date", "Goal Name", "Value")
+            df.to_csv("project_log.csv")
+            add2.to_sql("progress_params", conn, if_exists='append', index=False)
+            df = pd.read_sql("SELECT * FROM progress_params", conn)
+            df.to_csv("progress_params.csv")
+
+        render_template("Create/Progress.html", form=form, template="Flask")
     #try:
     #    with sqlite3.connect(database_name) as conn:
     #        temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
@@ -234,60 +200,27 @@ def update_progress_page():
 
 
 def update_choices():
-    if True:
-        if "Goals.db" in os.listdir("."):
-            with sqlite3.connect(database_name) as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-                tables = cursor.fetchall()
-                tables = [x[0] for x in tables]
-                if len(tables) == 0:
-                    existing_groups = ['General']
-                    existing_progress = ['General']
-                else:
-                    goals, work_log = RedBook.Data.process_goals_SQL(conn)
-                    existing_groups = goals['Group'].unique()
-                    existing_progress =goals['Progress Name'].unique()
-                
-        else:
-            existing_groups = ['General']
-            existing_progress = ['General']
+    with sqlite3.connect(database_name) as conn:
+        existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
+        existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].values)
             
-        return [(x, x) for x in existing_groups], [(x, x) for x in existing_progress]
-class GoalForm(FlaskForm):
+    return [(x, x) for x in existing_groups], [(x, x) for x in existing_progress]
 
-    if "Goals.db" in os.listdir("."):
+class GoalForm(FlaskForm):
+    try:
         with sqlite3.connect(database_name) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = cursor.fetchall()
-            tables = [x[0] for x in tables]
-            if 'goals' not in tables:
-                existing_groups = ['General']
-                existing_progress = ['General']
-            else:
-                goals, work_log = RedBook.Data.process_goals_SQL(conn)
-                existing_groups = goals['Group'].unique()
-                existing_progress =goals['Progress Name'].unique()
-            
-    else:
-        existing_groups = ['General']
-        existing_progress = ['General']
+            existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
+            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].values)
+    except:
+        existing_groups = []
+        existing_progress = []
+    
     goal_name = StringField('Goal Name', validators=[DataRequired()])
-    existing_bool = BooleanField('Use Existing Group Field', default=True)
-    existing_bool2 = BooleanField('Use Existing Progress Field', default=False)
-    group_name_select = SelectField('Group Name (Existing)', coerce=str)
-    #group_name_select = SelectField('Group Name (Existing)')
-    group_name = StringField('Group Name (New)', default='General')
+    group_name_select = SelectField('Group Name', coerce=str)
     progress_name_select = SelectField('Progress Name', coerce=str)
-    #progress_name_select = SelectField('Progress Name')
-    progress_name = StringField('Progress Name (New)', default='Goal')
-    start_progress = FloatField("Start Progress")
-    end_progress = FloatField("End Progress")
+    end_progress = FloatField("Goal Progress")
     start_date = DateField("Start Date")
     end_date = DateField("End Date")
-    progress_type = SelectField('Progress Type', choices=[(x, x) for x in ["Add", "Progress"]])
-    units = FloatField("Units", default=1)
     today = BooleanField('Today', default=True)
     week = BooleanField('Week', default=True)
     month = BooleanField('Month', default=True)
@@ -303,7 +236,8 @@ class GroupForm(FlaskForm):
 
 
 class ProgressForm(FlaskForm):
-    group_name = StringField('Progress Name', validators=[DataRequired()])
+    progress_name = StringField('Progress Name', validators=[DataRequired()])
     progress_type = SelectField('Progress Type', choices=[(x, x) for x in ["Add", "Progress"]])
     units = FloatField("Units", default=1)
+    starting_value = FloatField("Starting Value", default=0)
     submit = SubmitField('Create Progress')

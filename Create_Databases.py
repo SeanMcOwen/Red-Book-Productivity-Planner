@@ -15,3 +15,6 @@ def excel_to_db(conn):
     if "group.csv" in os.listdir("/"):
         group = pd.read_csv("group.csv", index_col=0)
         group.to_sql("groups", conn, if_exists='replace', index=False)
+    if "progress_params.csv" in os.listdir("/"):
+        param = pd.read_csv("progress_params.csv", index_col=0)
+        param.to_sql("groups", conn, if_exists='replace', index=False)

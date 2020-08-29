@@ -117,7 +117,7 @@ class Goal:
         self.number = goal_params['Goal #']
         self.name = goal_params['Goal Name']
         self.progress_name = goal_params['Progress Name']
-        self.start_progress = goal_params['Start Progress']
+        self.start_progress = progress_log[goal_params['Start Date'] - pd.Timedelta("1D")]
         self.end_progress = goal_params['Goal Progress']
         self.group = goal_params['Group']
         self.progress_log = progress_log
