@@ -117,7 +117,7 @@ class Goal:
         self.number = goal_params['Goal #']
         self.name = goal_params['Goal Name']
         self.progress_name = goal_params['Progress Name']
-        self.start_progress = progress_log[goal_params['Start Date'] - pd.Timedelta("1D")]
+        
         self.end_progress = goal_params['Goal Progress']
         self.group = goal_params['Group']
         self.progress_log = progress_log
@@ -125,14 +125,13 @@ class Goal:
         self.start_date = goal_params['Start Date']
         self.end_date = goal_params['End Date']
         
-        if progress_log is not None:
-            self.current_progress = progress_log.iloc[-1]
-            self.progress_log = progress_log.reindex(pd.date_range(self.start_date-pd.Timedelta("1D"), pd.to_datetime(datetime.today().date())))
-            self.progress_log = self.progress_log.fillna(method='ffill')
-            self.progress_log = self.progress_log.fillna(self.start_progress)
-        else:
-            self.current_progress = self.start_progress
-            self.progress_log = pd.Series(self.start_progress, index=pd.date_range(self.start_date-pd.Timedelta("1D"), pd.to_datetime(datetime.today().date())))
+
+        self.current_progress = progress_log.iloc[-1]
+        self.progress_log = progress_log.reindex(pd.date_range(self.start_date-pd.Timedelta("1D"), pd.to_datetime(datetime.today().date())))
+        self.progress_log = self.progress_log.fillna(method='ffill')
+        self.start_progress = progress_log[goal_params['Start Date'] - pd.Timedelta("1D")]
+        self.progress_log = self.progress_log.fillna(self.start_progress)
+
         
         self.build_schedules()
         self.build_daily_increment_tracker()

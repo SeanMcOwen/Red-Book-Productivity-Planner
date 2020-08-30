@@ -15,12 +15,13 @@ def pull_work_log_SQL(goals, conn):
     params = pd.read_sql("SELECT * FROM progress_params", conn).set_index("Goal Name")
     for col in work_log.columns:
         progress_type = params.loc[col, 'Progress Type']
-        units = progress_type = params.loc[col, 'Units']
+        units  = params.loc[col, 'Units']
         if progress_type == "Add":
             work_log[col] = work_log[col].fillna(0).cumsum()
         elif progress_type == "Progress":
             work_log[col] = work_log[col].fillna(method='ffill')
         work_log[col] = work_log[col] / units
+
     return work_log, params
 
 def process_goals_SQL(conn):
@@ -29,9 +30,11 @@ def process_goals_SQL(conn):
     goals = goals[goals['Completed'] != "Completed"]
     def apply_function(x):
         wl = work_log[x['Progress Name']]
+        x = x.to_dict()
         x['Progress Type'] = params.loc[x['Progress Name'], 'Progress Type']
         x['Units'] = params.loc[x['Progress Name'], 'Units']
-        return Goal(x.to_dict(), wl)
+        
+        return Goal(x, wl)
     goals['Object'] = goals.apply(apply_function, axis=1)
     goals['Start Progress'] = goals['Object'].apply(lambda x: x.start_progress)
     return goals, work_log
