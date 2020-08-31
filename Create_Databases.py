@@ -12,8 +12,8 @@ def excel_to_db(conn):
         progress = progress.stack().reset_index()
         progress.columns = ['Date', 'Goal Name', 'Value']
         progress.to_sql("progress", conn, if_exists='replace', index=False)
-    if "group.csv" in os.listdir("."):
-        group = pd.read_csv("group.csv", index_col=0)
+    if "Group.csv" in os.listdir("."):
+        group = pd.read_csv("Group.csv", index_col=0)
         group.to_sql("groups", conn, if_exists='replace', index=False)
     if "progress_params.csv" in os.listdir("."):
         param = pd.read_csv("progress_params.csv", index_col=0)
