@@ -167,7 +167,7 @@ def update_progress_page():
             update_date = pd.to_datetime(datetime.strptime(update_date, "%m/%d/%Y"))
             
             
-            
+
             c = conn.cursor()
             c.execute('''DELETE FROM progress WHERE `Goal Name` = '{}' AND Date = datetime('{}')'''.format(goal_name, update_date.strftime('%Y-%m-%d %H:%M:%S')))
             conn.commit()
