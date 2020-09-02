@@ -1,5 +1,6 @@
 import pandas as pd
 from RedBook.Classes.Goal import Goal
+from datetime import datetime
 
     
 def pull_goals_data_SQL(conn):
@@ -28,6 +29,7 @@ def process_goals_SQL(conn):
     goals = pull_goals_data_SQL(conn)
     work_log, params = pull_work_log_SQL(goals, conn)
     goals = goals[goals['Completed'] != "Completed"]
+    goals = goals[goals['Start Date'] <= datetime.now()]
     def apply_function(x):
         wl = work_log[x['Progress Name']]
         x = x.to_dict()

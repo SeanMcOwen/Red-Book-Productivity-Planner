@@ -202,7 +202,7 @@ def update_progress_page():
 def update_choices():
     with sqlite3.connect(database_name) as conn:
         existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
-        existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].values)
+        existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
             
     return [(x, x) for x in existing_groups], [(x, x) for x in existing_progress]
 
@@ -210,7 +210,7 @@ class GoalForm(FlaskForm):
     try:
         with sqlite3.connect(database_name) as conn:
             existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
-            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].values)
+            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique().values)
     except:
         existing_groups = []
         existing_progress = []
