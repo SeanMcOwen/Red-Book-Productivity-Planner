@@ -4,7 +4,7 @@ import sqlite3
 from flask_wtf import FlaskForm
 from wtforms import (StringField, BooleanField,
                      RadioField,SelectField,TextField,
-                     TextAreaField,SubmitField, FloatField)
+                     TextAreaField,SubmitField, FloatField, IntegerField)
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired
 import RedBook
@@ -51,6 +51,19 @@ def form_to_pandas(form):
 
     
     data = pd.Series(data)
+    return data
+
+
+def form_to_pandas_habits(form):
+    data = {"Goal Name": form.habit_name.data,
+            "Goal Progress": form.group_name_select.data,
+            "Start Date": pd.to_datetime(form.start_date.data),
+            "Completed": "",
+            "Units": form.units.data,
+            "Frequency": form.frequency.data
+            }
+    data = pd.Series(data)
+
     return data
 
 @create_blueprint.route("/Goals",methods=['GET', 'POST'])
@@ -198,6 +211,32 @@ def update_progress_page():
             return render_template("Create/Update Progress.html", goals=goals_l, work_log=work_log, goal=goal_name, template="Flask")
     return render_template("Create/Update Progress.html", goals=list(goals['Progress Name'].unique()), template="Flask")
 
+@create_blueprint.route("/Habits",methods=['GET', 'POST'])
+def habits_page():
+    form = HabitsForm()
+    form.group_name_select.choices = update_choices()[0]
+    if form.validate_on_submit():
+        habits = form_to_pandas_habits(form).to_frame().transpose()
+        print(habits)
+
+        """with sqlite3.connect(database_name) as conn:
+            goals.to_sql("goals", conn, if_exists='append', index=False)
+            df = pd.read_sql("SELECT * FROM goals", conn)
+            df['Start Date'] = pd.to_datetime(df['Start Date'])
+            df['End Date'] = pd.to_datetime(df['End Date'])
+            df.to_csv("Goals.csv", index=False)
+            
+
+            
+
+        #form.update_choices()
+        #form = GoalForm()
+        form.group_name_select.choices, form.progress_name_select.choices = update_choices()"""
+        return render_template("Create/Habits.html", form=form, template="Flask")
+    else:
+        flash_errors(form)
+    #form.update_choices()
+    return render_template("Create/Habits.html", form=form, template="Flask")
 
 def update_choices():
     with sqlite3.connect(database_name) as conn:
@@ -205,6 +244,19 @@ def update_choices():
         existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
             
     return [(x, x) for x in existing_groups], [(x, x) for x in existing_progress]
+
+class HabitsForm(FlaskForm):
+    habit_name = StringField('Habit Name', validators=[DataRequired()])
+    group_name_select = SelectField('Group Name', coerce=str)
+    start_date = DateField("Start Date")
+    units = IntegerField("Units", default=1)
+    frequency = SelectField('Frequency', choices=[(x, x) for x in ["Daily",
+                                                                   "Weekly",
+                                                                   "Monthly",
+                                                                   "Yearly"]])
+    
+    submit = SubmitField('Submit')
+    
 
 class GoalForm(FlaskForm):
     try:

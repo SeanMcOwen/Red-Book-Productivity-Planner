@@ -1,0 +1,29 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+{% for message in get_flashed_messages() %}
+<div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ message }}
+</div>
+{% endfor %}
+
+<form method="POST" action="Habits">
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+    {{ form.habit_name.label }} {{ form.habit_name() }}<br>
+    {{ form.group_name_select.label }} {{ form.group_name_select() }}
+    <br>
+    {{ form.start_date.label }} {{ form.start_date() }}
+    <br>
+    {{ form.units.label }} {{ form.units() }}
+    <br>
+    {{ form.frequency.label }} {{ form.frequency() }}
+    <br>
+    {{ form.submit() }}
+</form>
+
+
+
+{% endblock %}
