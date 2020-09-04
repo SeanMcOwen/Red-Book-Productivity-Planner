@@ -217,21 +217,14 @@ def habits_page():
     form.group_name_select.choices = update_choices()[0]
     if form.validate_on_submit():
         habits = form_to_pandas_habits(form).to_frame().transpose()
-        print(habits)
 
-        """with sqlite3.connect(database_name) as conn:
-            goals.to_sql("goals", conn, if_exists='append', index=False)
-            df = pd.read_sql("SELECT * FROM goals", conn)
+        with sqlite3.connect(database_name) as conn:
+            habits.to_sql("habits", conn, if_exists='append', index=False)
+            df = pd.read_sql("SELECT * FROM habits", conn)
             df['Start Date'] = pd.to_datetime(df['Start Date'])
-            df['End Date'] = pd.to_datetime(df['End Date'])
-            df.to_csv("Goals.csv", index=False)
+            df.to_csv("Habits.csv", index=False)
             
 
-            
-
-        #form.update_choices()
-        #form = GoalForm()
-        form.group_name_select.choices, form.progress_name_select.choices = update_choices()"""
         return render_template("Create/Habits.html", form=form, template="Flask")
     else:
         flash_errors(form)

@@ -18,3 +18,6 @@ def excel_to_db(conn):
     if "progress_params.csv" in os.listdir("."):
         param = pd.read_csv("progress_params.csv", index_col=0)
         param.to_sql("progress_params", conn, if_exists='replace', index=False)
+    if "Habits.csv" in os.listdir("."):
+        habits = pd.read_csv("Habits.csv", index_col=0)
+        habits.to_sql("habits", conn, if_exists='replace', index=False)
