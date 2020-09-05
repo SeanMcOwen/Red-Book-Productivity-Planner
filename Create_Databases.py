@@ -21,3 +21,7 @@ def excel_to_db(conn):
     if "Habits.csv" in os.listdir("."):
         habits = pd.read_csv("Habits.csv", index_col=0)
         habits.to_sql("habits", conn, if_exists='replace', index=False)
+        
+        habits = pd.read_csv("Habits Progress.csv", index_col=0)
+        habits.to_sql("habits_progress", conn, if_exists='replace', index=False)
+        

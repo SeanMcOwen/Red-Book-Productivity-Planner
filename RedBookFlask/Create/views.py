@@ -55,8 +55,8 @@ def form_to_pandas(form):
 
 
 def form_to_pandas_habits(form):
-    data = {"Goal Name": form.habit_name.data,
-            "Goal Progress": form.group_name_select.data,
+    data = {"Habit Name": form.habit_name.data,
+            "Group": form.group_name_select.data,
             "Start Date": pd.to_datetime(form.start_date.data),
             "Completed": "",
             "Units": form.units.data,
@@ -223,6 +223,14 @@ def habits_page():
             df = pd.read_sql("SELECT * FROM habits", conn)
             df['Start Date'] = pd.to_datetime(df['Start Date'])
             df.to_csv("Habits.csv", index=False)
+            habit_name = habits.iloc[0]['Habit Name']
+            start_date = habits.iloc[0]['Start Date']
+            progress = pd.DataFrame([[habit_name, start_date, 0]],
+                                    columns= ['Habit Name', 'Date', 'Progress'])
+            progress.to_sql("habits_progress", conn, if_exists='append', index=False)
+            progress = pd.read_sql("SELECT * FROM habits_progress", conn)
+            progress['Date'] = pd.to_datetime(progress['Date'])
+            progress.to_csv("Habits Progress.csv", index=False)
             
 
         return render_template("Create/Habits.html", form=form, template="Flask")
@@ -246,6 +254,7 @@ class HabitsForm(FlaskForm):
     frequency = SelectField('Frequency', choices=[(x, x) for x in ["Daily",
                                                                    "Weekly",
                                                                    "Monthly",
+                                                                   "Quarterly",
                                                                    "Yearly"]])
     
     submit = SubmitField('Submit')
