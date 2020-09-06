@@ -1,5 +1,6 @@
 import pandas as pd
 from RedBook.Classes.Goal import Goal
+from RedBook.Classes.Habit import Habit
 from datetime import datetime
 
     
@@ -40,3 +41,28 @@ def process_goals_SQL(conn):
     goals['Object'] = goals.apply(apply_function, axis=1)
     goals['Start Progress'] = goals['Object'].apply(lambda x: x.start_progress)
     return goals, work_log
+
+
+def pull_habits_data_SQL(conn):
+    df = pd.read_sql("SELECT * FROM habits", conn)
+    df['Start Date'] = pd.to_datetime(df['Start Date'])
+    return df
+
+
+def pull_habits_log_SQL(conn):
+    work_log = pd.read_sql("SELECT * FROM habits_progress", conn).pivot("Date", "Habit Name", "Progress")
+    work_log.index = pd.to_datetime(work_log.index)
+    return work_log
+
+def process_habits_SQL(conn):
+    habits = pull_habits_data_SQL(conn)
+    work_log = pull_habits_log_SQL(conn)
+    habits = habits[habits['Completed'] != "Completed"]
+    habits = habits[habits['Start Date'] <= datetime.now()]
+    def apply_function(x):
+        wl = work_log[x['Habit Name']]
+        x = x.to_dict()
+        
+        return Habit(x, wl)
+    habits['Object'] = habits.apply(apply_function, axis=1)
+    return habits

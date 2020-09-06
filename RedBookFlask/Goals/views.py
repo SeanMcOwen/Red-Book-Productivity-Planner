@@ -70,3 +70,8 @@ def goals_page():
         
     return render_template("Goals.html",goals=list(goals['Goal Name'].values), template="Flask")
 
+
+@goals_blueprint.route("/Habits",methods=['GET', 'POST'])
+def habits_page():
+    pass
+

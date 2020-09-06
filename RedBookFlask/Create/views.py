@@ -222,7 +222,7 @@ def habits_page():
             habits.to_sql("habits", conn, if_exists='append', index=False)
             df = pd.read_sql("SELECT * FROM habits", conn)
             df['Start Date'] = pd.to_datetime(df['Start Date'])
-            df.to_csv("Habits.csv", index=False)
+            df.to_csv("Habits.csv")
             habit_name = habits.iloc[0]['Habit Name']
             start_date = habits.iloc[0]['Start Date']
             progress = pd.DataFrame([[habit_name, start_date, 0]],
@@ -230,7 +230,7 @@ def habits_page():
             progress.to_sql("habits_progress", conn, if_exists='append', index=False)
             progress = pd.read_sql("SELECT * FROM habits_progress", conn)
             progress['Date'] = pd.to_datetime(progress['Date'])
-            progress.to_csv("Habits Progress.csv", index=False)
+            progress.to_csv("Habits Progress.csv")
             
 
         return render_template("Create/Habits.html", form=form, template="Flask")
