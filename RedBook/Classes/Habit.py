@@ -11,3 +11,7 @@ class Habit:
         self.units = habit_params['Units']
         self.frequency = habit_params['Frequency']
         self.progress_log = progress_log
+        
+        self.progress_log = self.progress_log.reindex(index=pd.date_range(self.start_date,
+                                                                          pd.to_datetime(datetime.now().date())))
+        self.progress_log = self.progress_log.fillna(0)

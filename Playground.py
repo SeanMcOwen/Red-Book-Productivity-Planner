@@ -16,5 +16,3 @@ with sqlite3.connect(database_name) as conn:
     #habits_progress = RedBook.Data.pull_habits_log_SQL(conn)
     
     habits = RedBook.Data.process_habits_SQL(conn)
-    
-

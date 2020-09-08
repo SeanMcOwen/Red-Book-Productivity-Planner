@@ -65,4 +65,4 @@ def process_habits_SQL(conn):
         
         return Habit(x, wl)
     habits['Object'] = habits.apply(apply_function, axis=1)
-    return habits
+    return habits, work_log

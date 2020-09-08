@@ -211,6 +211,63 @@ def update_progress_page():
             return render_template("Create/Update Progress.html", goals=goals_l, work_log=work_log, goal=goal_name, template="Flask")
     return render_template("Create/Update Progress.html", goals=list(goals['Progress Name'].unique()), template="Flask")
 
+@create_blueprint.route("/Update Habits",methods=['GET', 'POST'])
+def update_habits_page():
+    with sqlite3.connect(database_name) as conn:
+        habits, work_log = RedBook.Data.process_habits_SQL(conn)
+    if request.method == 'POST':
+        habit_name  = request.values.get('habit')
+        update_val  = request.values.get('update_val')
+        update_date  = request.values.get('date')
+        if update_val is None:
+            work_log = pd.read_sql("SELECT * FROM habits_progress WHERE `Habit Name` = '{}'".format(habit_name), conn).pivot("Date", "Habit Name", "Progress")
+            work_log.index = pd.to_datetime(work_log.index)
+            work_log = work_log.reindex(index=pd.date_range(work_log.index[0], pd.to_datetime(datetime.now().date()))).sort_index(ascending=False)
+            work_log = work_log.fillna("")
+            work_log.index = [x.strftime("%m/%d/%Y") for x in work_log.index]
+            work_log = work_log.reset_index().values
+            work_log = [list(x) for x in work_log]
+            
+            habits_l = list(habits['Habit Name'].unique())
+            habits_l = [habit_name] + [x for x in habits_l if x != habit_name]
+    
+            return render_template("Create/Update Habits.html", habits=habits_l, work_log=work_log, habit=habit_name, template="Flask")
+        else:
+            
+            update_date = pd.to_datetime(datetime.strptime(update_date, "%m/%d/%Y"))
+            
+            
+
+            c = conn.cursor()
+            c.execute('''DELETE FROM habits_progress WHERE `Habit Name` = '{}' AND Date = datetime('{}')'''.format(habit_name, update_date.strftime('%Y-%m-%d %H:%M:%S')))
+            conn.commit()
+            
+            if update_val == "":
+                #Just delete if exists
+                pass
+            else:
+                upload = pd.Series([update_val, update_date, habit_name], index=['Progress', 'Date', 'Habit Name'])
+                upload = upload.to_frame().transpose()
+                upload.to_sql("habits_progress", conn, if_exists='append', index=False)
+                
+            work_log = pd.read_sql("SELECT * FROM habits_progress", conn)
+            work_log.to_csv("Habits Progress.csv")
+            
+            work_log = pd.read_sql("SELECT * FROM habits_progress WHERE `Habit Name` = '{}'".format(habit_name), conn).pivot("Date", "Habit Name", "Progress")
+            work_log.index = pd.to_datetime(work_log.index)
+            work_log = work_log.reindex(index=pd.date_range(work_log.index[0], pd.to_datetime(datetime.now().date()))).sort_index(ascending=False)
+            work_log = work_log.fillna("")
+            work_log.index = [x.strftime("%m/%d/%Y") for x in work_log.index]
+            work_log = work_log.reset_index().values
+            work_log = [list(x) for x in work_log]
+            
+            habits_l = list(habits['Habit Name'].unique())
+            habits_l = [habit_name] + [x for x in habits_l if x != habit_name]
+            
+    
+            return render_template("Create/Update Habits.html", habits=habits_l, work_log=work_log, habit=habit_name, template="Flask")
+    return render_template("Create/Update Habits.html", habits=list(habits['Habit Name'].unique()), template="Flask")
+
 @create_blueprint.route("/Habits",methods=['GET', 'POST'])
 def habits_page():
     form = HabitsForm()
