@@ -5,6 +5,9 @@ from datetime import datetime
 
 
 database_name = 'Goals.db'
+
+
+from datetime import datetime
 with sqlite3.connect(database_name) as conn:
     #goals, work_log = RedBook.Data.process_goals_SQL(conn)
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
@@ -15,4 +18,8 @@ with sqlite3.connect(database_name) as conn:
     #habits = RedBook.Data.pull_habits_data_SQL(conn)
     #habits_progress = RedBook.Data.pull_habits_log_SQL(conn)
     
-    habits = RedBook.Data.process_habits_SQL(conn)
+    habits, progress = RedBook.Data.process_habits_SQL(conn)
+    habit = habits.iloc[1]['Object']
+    print(habit.progress_log2)
+    #["Daily","Weekly","Monthly","Quarterly","Yearly"]
+    
