@@ -57,6 +57,23 @@ def progress_bars_page():
     script = server_document('http://localhost:5006/progressbars')
     return render_template("embed.html", script=script, template="Flask")
 
+@increments_blueprint.route("/Habits Increments",methods=['GET', 'POST'])
+def habits_increments_page():
+    with sqlite3.connect(database_name) as conn:
+        habits, progress = RedBook.Data.process_habits_SQL(conn)
+        table = RedBook.Tables.build_expected_progress_table_habits(habits)
+    
+    tables = ""
+    for col in ["Daily","Weekly","Monthly","Quarterly","Yearly"]:
+        temp = table[(table['Frequency'] == col) & (table['Progress Left'] > 0)]
+        if len(temp) > 0:
+            tables += "<h3>"+col+"</h3>"
+            tables += temp.to_html(index=False)
+            tables += "<br>"
+        else:
+            continue
+        
+    return render_template("HabitsIncrements.html", tables1=tables, template="Flask")
 
 
 
