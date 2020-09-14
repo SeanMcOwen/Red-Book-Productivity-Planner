@@ -23,5 +23,6 @@ def excel_to_db(conn):
         habits.to_sql("habits", conn, if_exists='replace', index=False)
         
         habits = pd.read_csv("Habits Progress.csv", index_col=0)
+        habits['Date'] = pd.to_datetime(habits['Date'])
         habits.to_sql("habits_progress", conn, if_exists='replace', index=False)
         
