@@ -66,6 +66,16 @@ def form_to_pandas_habits(form):
 
     return data
 
+def form_to_pandas_tasks(form):
+    data = {"Task Name": form.task_name.data,
+            "Group": form.group_name_select.data,
+            "Due Date": pd.to_datetime(form.due_date.data),
+            "Completed": ""
+            }
+    data = pd.Series(data)
+
+    return data
+
 @create_blueprint.route("/Goals",methods=['GET', 'POST'])
 def goals_page():
     form = GoalForm()
@@ -91,6 +101,29 @@ def goals_page():
         flash_errors(form)
     #form.update_choices()
     return render_template("Create/Goals.html", form=form, template="Flask")
+
+@create_blueprint.route("/Task",methods=['GET', 'POST'])
+def task_page():
+    form = TaskForm()
+    form.group_name_select.choices = update_choices()[0]
+    if form.validate_on_submit():
+        tasks = form_to_pandas_tasks(form).to_frame().transpose()
+        with sqlite3.connect(database_name) as conn:
+            tasks.to_sql("tasks", conn, if_exists='append', index=False)
+            df = pd.read_sql("SELECT * FROM tasks", conn)
+            df['Due Date'] = pd.to_datetime(df['Due Date'])
+            df.to_csv("Tasks.csv", index=False)
+            
+
+            
+
+        form.group_name_select.choices = update_choices()[0]
+        return render_template("Create/Task.html", form=form, template="Flask")
+    else:
+        flash_errors(form)
+        
+
+    return render_template("Create/Task.html", form=form, template="Flask")
 
 
 @create_blueprint.route("/Group",methods=['GET', 'POST'])
@@ -340,6 +373,11 @@ class GoalForm(FlaskForm):
     historical = BooleanField("Historical", default=True)
     submit = SubmitField('Submit')
 
+class TaskForm(FlaskForm):    
+    task_name = StringField('Task Name', validators=[DataRequired()])
+    group_name_select = SelectField('Group Name', coerce=str)
+    due_date = DateField("Due Date")
+    submit = SubmitField('Submit')
 
 class GroupForm(FlaskForm):
     group_name = StringField('Group Name', validators=[DataRequired()])
