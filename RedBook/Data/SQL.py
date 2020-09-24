@@ -54,6 +54,36 @@ def pull_habits_log_SQL(conn):
     work_log.index = pd.to_datetime(work_log.index)
     return work_log
 
+def pull_tasks_SQL(conn):
+    tasks = pd.read_sql("SELECT * FROM tasks", conn)
+    tasks['Due Date'] = pd.to_datetime(tasks['Due Date'])
+    today = pd.to_datetime(datetime.now().date())
+    week = today + pd.Timedelta("{}D".format(6-today.weekday()))
+    tasks['Today'] = tasks['Due Date'] <= today
+    tasks['Week'] = tasks['Due Date'] <= week
+    
+    month = (today.month % 12) + 1
+    if today.month == 12:
+        year = today.year + 1
+    else:
+        year = today.year + 1
+    month = datetime(year, month, 1) - pd.Timedelta("1D")
+    tasks['Month'] = tasks['Due Date'] <= week
+    
+    month = today.month
+    if today.month == 10:
+        year = today.year + 1
+        month = 1
+    else:
+        year = today.year
+        month = month + 3
+    quarter = datetime(year, month, 1) - pd.Timedelta("1D")
+    tasks['Quarter'] = tasks['Due Date'] <= quarter
+    
+    year = datetime(today.year+1, 1, 1) - pd.Timedelta("1D")
+    tasks['Year'] = tasks['Due Date'] <= year
+    return tasks
+
 def process_habits_SQL(conn):
     habits = pull_habits_data_SQL(conn)
     work_log = pull_habits_log_SQL(conn)
