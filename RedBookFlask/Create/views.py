@@ -244,6 +244,15 @@ def update_progress_page():
             return render_template("Create/Update Progress.html", goals=goals_l, work_log=work_log, goal=goal_name, template="Flask")
     return render_template("Create/Update Progress.html", goals=list(goals['Progress Name'].unique()), template="Flask")
 
+@create_blueprint.route("/Update Tasks",methods=['GET', 'POST'])
+def update_tasks_page():
+    with sqlite3.connect(database_name) as conn:
+        tasks = RedBook.Data.pull_tasks_SQL(conn)
+
+    return render_template("Create/Update Tasks.html", tasks=list(tasks['Task Name'].values), template="Flask")
+
+
+
 @create_blueprint.route("/Update Habits",methods=['GET', 'POST'])
 def update_habits_page():
     with sqlite3.connect(database_name) as conn:

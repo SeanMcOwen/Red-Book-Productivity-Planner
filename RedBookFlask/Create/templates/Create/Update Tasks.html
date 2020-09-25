@@ -1,0 +1,26 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+
+
+
+<table>
+  {% for w in tasks %}
+  <form action={{ url_for('create.update_tasks_page') }} method="POST" >
+  <tr>
+  <td>
+{{ w }}
+</td>
+
+   <td>
+    <input type="hidden" id="task" name="task" value='{{ w }}'>
+
+   <input type="submit" value="Complete">
+   </td>
+   </tr>
+   </form>
+  {% endfor %}
+</table>
+
+{% endblock %}
