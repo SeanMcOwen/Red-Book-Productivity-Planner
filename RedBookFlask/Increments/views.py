@@ -76,4 +76,27 @@ def habits_increments_page():
     return render_template("HabitsIncrements.html", tables1=tables, template="Flask")
 
 
+@increments_blueprint.route("/Tasks Increments",methods=['GET', 'POST'])
+def task_increments_page():
+    with sqlite3.connect(database_name) as conn:
+        tasks = RedBook.Data.pull_tasks_SQL(conn)
+    
+    tables = ""
+    for col in ["Today","Week","Month","Quarter","Year"]:
+        temp = tasks[tasks[col]][['Task Name', 'Due Date']]
+        if len(temp) > 0:
+            tables += "<h3>"+col+"</h3>"
+            tables += temp.to_html(index=False)
+            tables += "<br>"
+        else:
+            continue
+    temp = tasks[['Task Name', 'Due Date']]
+    tables += "<h3>All Tasks</h3>"
+    tables += temp.to_html(index=False)
+    tables += "<br>"
+    
+        
+    return render_template("HabitsIncrements.html", tables1=tables, template="Flask")
+
+
 

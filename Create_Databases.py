@@ -26,6 +26,6 @@ def excel_to_db(conn):
         habits['Date'] = pd.to_datetime(habits['Date'])
         habits.to_sql("habits_progress", conn, if_exists='replace', index=False)
     if "Tasks.csv" in os.listdir("."):
-        tasks = pd.read_csv("Tasks.csv", index_col=0)
+        tasks = pd.read_csv("Tasks.csv")
         tasks['Due Date'] = pd.to_datetime(tasks['Due Date'])
         tasks.to_sql("tasks", conn, if_exists='replace', index=False)
