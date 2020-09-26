@@ -54,8 +54,10 @@ def pull_habits_log_SQL(conn):
     work_log.index = pd.to_datetime(work_log.index)
     return work_log
 
-def pull_tasks_SQL(conn):
+def pull_tasks_SQL(conn, filter_complete=True):
     tasks = pd.read_sql("SELECT * FROM tasks", conn)
+    if filter_complete:
+        tasks = tasks[tasks['Completed'] != 'Completed']
     tasks['Due Date'] = pd.to_datetime(tasks['Due Date'])
     today = pd.to_datetime(datetime.now().date())
     week = today + pd.Timedelta("{}D".format(6-today.weekday()))

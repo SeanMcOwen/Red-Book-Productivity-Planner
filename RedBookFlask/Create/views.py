@@ -248,6 +248,18 @@ def update_progress_page():
 def update_tasks_page():
     with sqlite3.connect(database_name) as conn:
         tasks = RedBook.Data.pull_tasks_SQL(conn)
+    if request.method == 'POST':
+        task  = request.values.get('task')
+        
+        with sqlite3.connect(database_name) as conn:
+            conn.cursor().execute("UPDATE tasks SET Completed = 'Completed' WHERE `Task Name` = '{}'".format(task))
+            conn.commit()
+            df = pd.read_sql("SELECT * FROM tasks", conn)
+            df['Due Date'] = pd.to_datetime(df['Due Date'])
+            df.to_csv("Tasks.csv", index=False)
+
+            tasks = RedBook.Data.pull_tasks_SQL(conn)
+        return render_template("Create/Update Tasks.html", tasks=list(tasks['Task Name'].values), template="Flask")
 
     return render_template("Create/Update Tasks.html", tasks=list(tasks['Task Name'].values), template="Flask")
 
