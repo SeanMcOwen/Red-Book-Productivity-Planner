@@ -39,5 +39,35 @@ app.config['SECRET_KEY'] = 'TEST'
 
 @app.route("/",methods=['GET', 'POST'])
 def main():
-    return render_template("Home.html", template="Flask")
+    with sqlite3.connect(database_name) as conn:
+        try:
+            goals, work_log = RedBook.Data.process_goals_SQL(conn)
+            expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
+            expected_progress_table_today = RedBook.Tables.build_expected_work_tables_today(goals)
+        except:
+            goals = None
+            
+        try:
+            habits, progress = RedBook.Data.process_habits_SQL(conn)
+            table = RedBook.Tables.build_expected_progress_table_habits(habits)
+        except:
+            habits = None
+            
+        try:
+            tasks = RedBook.Data.pull_tasks_SQL(conn)
+        except:
+            tasks = None
+    if goals is not None:
+        tables = ""
+        for x in ["Today"]:
+            tables += "<h3>"+x+"</h3>"
+            current_table = expected_work_tables[x].copy()
+            current_table = current_table.dropna()
+            if 'Percent Left' in current_table.columns:
+                current_table['Percent Left'] = current_table['Percent Left'] * 100
+                current_table = current_table.round(2)
+                current_table['Percent Left'] = current_table['Percent Left'].astype(str) +"%"
+            tables += current_table.to_html()
+            tables += "<br>"
+    return render_template("Home.html", template="Flask", tables=tables)
 
