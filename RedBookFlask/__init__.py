@@ -57,10 +57,10 @@ def main():
             tasks = RedBook.Data.pull_tasks_SQL(conn)
         except:
             tasks = None
+    tables = ""
     if goals is not None:
-        tables = ""
         for x in ["Today"]:
-            tables += "<h3>"+x+"</h3>"
+            tables += "<h3>Today's Goals</h3>"
             current_table = expected_work_tables[x].copy()
             current_table = current_table.dropna()
             if 'Percent Left' in current_table.columns:
@@ -69,5 +69,25 @@ def main():
                 current_table['Percent Left'] = current_table['Percent Left'].astype(str) +"%"
             tables += current_table.to_html()
             tables += "<br>"
+    
+    if habits is not None:
+        for col in ["Daily"]:
+            temp = table[(table['Frequency'] == col) & (table['Progress Left'] > 0)]
+            if len(temp) > 0:
+                tables += "<h3>Today's Habits</h3>"
+                tables += temp.to_html(index=False)
+                tables += "<br>"
+            else:
+                continue
+    
+    if tasks is not None:
+        for col in ["Today"]:
+            temp = tasks[tasks[col]][['Task Name', 'Due Date']]
+            if len(temp) > 0:
+                tables += "<h3>Today's Tasks</h3>"
+                tables += temp.to_html(index=False)
+                tables += "<br>"
+            else:
+                continue
     return render_template("Home.html", template="Flask", tables=tables)
 
