@@ -57,12 +57,13 @@ def main():
             tasks = RedBook.Data.pull_tasks_SQL(conn)
         except:
             tasks = None
-    tables = ""
+    
+    tables_d = {}
     for label1, label2 in zip(["Today","Week","Month","Quarter","Year"],["Daily","Weekly","Monthly","Quarterly","Yearly"]):
-        
+        tables = ""
         if goals is not None:
             for x in [label1]:
-                tables += "<h3>{} Goals</h3>".format(label1)
+                tables += "<h3>Goals</h3>"
                 current_table = expected_work_tables[x].copy()
                 current_table = current_table.dropna()
                 if 'Percent Left' in current_table.columns:
@@ -76,7 +77,7 @@ def main():
             for col in [label2]:
                 temp = table[(table['Frequency'] == col) & (table['Progress Left'] > 0)]
                 if len(temp) > 0:
-                    tables += "<h3>{} Habits</h3>".format(label1)
+                    tables += "<h3>Habits</h3>"
                     tables += temp.to_html(index=False)
                     tables += "<br>"
                 else:
@@ -86,10 +87,11 @@ def main():
             for col in [label1]:
                 temp = tasks[tasks[col]][['Task Name', 'Due Date']]
                 if len(temp) > 0:
-                    tables += "<h3>{} Tasks</h3>".format(label1)
+                    tables += "<h3>Tasks</h3>"
                     tables += temp.to_html(index=False)
                     tables += "<br>"
                 else:
                     continue
-    return render_template("Home.html", template="Flask", tables=tables)
+        tables_d[label1] = tables
+    return render_template("Home.html", template="Flask", tables=tables_d)
 
