@@ -98,3 +98,8 @@ def process_habits_SQL(conn):
         return Habit(x, wl)
     habits['Object'] = habits.apply(apply_function, axis=1)
     return habits, work_log
+
+def check_goal_completion(conn, goals):
+    complete = goals.set_index("Goal Name")['Object'].apply(lambda goal: abs(goal.current_progress - goal.start_progress) / abs(goal.end_progress - goal.start_progress))
+    complete = (complete >= 1)
+    return complete
