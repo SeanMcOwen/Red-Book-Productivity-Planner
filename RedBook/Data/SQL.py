@@ -31,6 +31,7 @@ def process_goals_SQL(conn):
     work_log, params = pull_work_log_SQL(goals, conn)
     goals = goals[goals['Completed'] != "Completed"]
     goals = goals[goals['Start Date'] <= datetime.now()]
+    
     def apply_function(x):
         wl = work_log[x['Progress Name']]
         x = x.to_dict()
@@ -102,4 +103,13 @@ def process_habits_SQL(conn):
 def check_goal_completion(conn, goals):
     complete = goals.set_index("Goal Name")['Object'].apply(lambda goal: abs(goal.current_progress - goal.start_progress) / abs(goal.end_progress - goal.start_progress))
     complete = (complete >= 1)
-    return complete
+    complete = complete[complete]
+    for goal in complete.index:
+        conn.cursor().execute("UPDATE goals SET Completed = 'Completed' WHERE `Goal Name` = '{}'".format(goal))
+        conn.commit()
+        
+        df = pd.read_sql("SELECT * FROM goals", conn)
+        df['Start Date'] = pd.to_datetime(df['Start Date'])
+        df['End Date'] = pd.to_datetime(df['End Date'])
+        df.to_csv("Goals.csv", index=False)
+    

@@ -206,6 +206,9 @@ def update_progress_page():
             
             goals_l = list(goals['Progress Name'].unique())
             goals_l = [goal_name] + [x for x in goals_l if x != goal_name]
+            
+            goals1, work_log1 = RedBook.Data.process_goals_SQL(conn)
+            RedBook.Data.check_goal_completion(conn, goals1)
     
             return render_template("Create/Update Progress.html", goals=goals_l, work_log=work_log, goal=goal_name, template="Flask")
         else:
@@ -240,7 +243,8 @@ def update_progress_page():
             goals_l = list(goals['Progress Name'].unique())
             goals_l = [goal_name] + [x for x in goals_l if x != goal_name]
             
-    
+            goals1, work_log1 = RedBook.Data.process_goals_SQL(conn)
+            RedBook.Data.check_goal_completion(conn, goals1)
             return render_template("Create/Update Progress.html", goals=goals_l, work_log=work_log, goal=goal_name, template="Flask")
     return render_template("Create/Update Progress.html", goals=list(goals['Progress Name'].unique()), template="Flask")
 

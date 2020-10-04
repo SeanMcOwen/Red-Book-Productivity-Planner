@@ -28,4 +28,4 @@ with sqlite3.connect(database_name) as conn:
     #["Daily","Weekly","Monthly","Quarterly","Yearly"]
     #tasks = RedBook.Data.pull_tasks_SQL(conn)
 
-    print(RedBook.Data.check_goal_completion(conn, goals))
+    RedBook.Data.check_goal_completion(conn, goals)
