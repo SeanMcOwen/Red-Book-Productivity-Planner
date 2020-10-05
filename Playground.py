@@ -14,7 +14,7 @@ database_name = 'Goals.db'
 
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:
-    goals, work_log = RedBook.Data.process_goals_SQL(conn)
+    #goals, work_log = RedBook.Data.process_goals_SQL(conn)
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
     #expected_work_table = RedBook.Tables.build_expected_work_table(goals)
     
@@ -23,9 +23,10 @@ with sqlite3.connect(database_name) as conn:
     #habits = RedBook.Data.pull_habits_data_SQL(conn)
     #habits_progress = RedBook.Data.pull_habits_log_SQL(conn)
     
-    #habits, progress = RedBook.Data.process_habits_SQL(conn)
+    habits, progress = RedBook.Data.process_habits_SQL(conn)
     #table = RedBook.Tables.build_expected_progress_table_habits(habits)
     #["Daily","Weekly","Monthly","Quarterly","Yearly"]
     #tasks = RedBook.Data.pull_tasks_SQL(conn)
 
-    RedBook.Data.check_goal_completion(conn, goals)
+    #RedBook.Data.check_goal_completion(conn, goals)
+    print(habits['Object'].apply(lambda x: x.streak))

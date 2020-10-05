@@ -37,3 +37,5 @@ class Habit:
         self.progress_log = self.progress_log.fillna(0)
         
         self.progress_log2 = create_progress_log2(self.progress_log, self.frequency)
+        
+        self.streak = (self.progress_log2.iloc[:-1][::-1] >= self.units).astype(int).cumprod().sum()
