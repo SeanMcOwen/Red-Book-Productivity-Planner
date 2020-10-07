@@ -7,9 +7,6 @@ from datetime import datetime
 database_name = 'Goals.db'
 
 
-    
-#Function to check if a goal is complete and if it is update it
-
 
 
 from datetime import datetime
@@ -30,6 +27,17 @@ with sqlite3.connect(database_name) as conn:
 
     #RedBook.Data.check_goal_completion(conn, goals)
 
-    group = RedBook.Classes.Group(goals.iloc[0:1])
-    cal_choice = 'Week'
-    data = group.build_group_schedule(cal_choice, data_type = 'Completion')
+    
+    #Take this group logic and apply it to find a streak for daily, weekly, etc for goals
+    
+    goal_name = goals['Goal Name'].iloc[0]
+    
+    
+    goal_object = goals.set_index('Goal Name').loc[goal_name, 'Object']
+    streak_data, streak = goal_object.compute_streak('Month')
+
+    
+    #schedule_name = "Week"
+    #date_range = "Overlap"
+
+    #schedule_data, graph_data2 = pull_schedule_data(goals, goal_name, schedule_name, date_range)

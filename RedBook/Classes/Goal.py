@@ -238,7 +238,26 @@ class Goal:
             schedule = schedule.reindex(index=pd.date_range(schedule.index[0], schedule.index[-1]))
             schedule = schedule.fillna(method='ffill')
         return schedule
-
+    
+    def compute_streak(self, schedule_key):
+        streak_data = self.compute_PIT_schedules(schedule_key, "Overlap")
+        streak_data = streak_data[:-1]
+        streak_data_progress = pd.concat([x.iloc[-1:] for x in streak_data]).to_frame()
+        streak_data_progress.columns = ['Expected Progress']
+        
+        actual_progress = pd.concat([self.progress_log.loc[x.index[-1]:x.index[-1]] for x in streak_data]).to_frame()
+        actual_progress.columns = ['Actual Progress']
+        
+        streak_data_ex_work = pd.concat([x.iloc[-1:] - x.iloc[0] for x in streak_data]).to_frame()
+        streak_data_ex_work.columns = ['Expected Work Done']
+        
+        actual_work_done = pd.concat([self.progress_log.loc[x.index[-1]:x.index[-1]] - self.progress_log.loc[x.index[0]] for x in streak_data]).to_frame()
+        actual_work_done.columns = ['Actual Work Done']
+        
+        streak_data = pd.concat([streak_data_progress, actual_progress, streak_data_ex_work, actual_work_done], axis=1)
+        streak = (abs(streak_data['Actual Work Done']) >= abs(streak_data['Expected Work Done'])).astype(int)
+        streak = streak.iloc[::-1].cumprod().sum()
+        return streak_data, streak
 
 
         
