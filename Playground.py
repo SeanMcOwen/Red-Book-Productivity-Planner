@@ -7,7 +7,13 @@ from datetime import datetime
 database_name = 'Goals.db'
 
 
-
+def create_bulk_tasks(first_due_date, time_between, prefix, start, end, group):
+    tasks = [[prefix + " "+ str(x),
+              group,
+              first_due_date + pd.Timedelta("{}D".format((x-1)* time_between)),
+              ""] for x in range(start, end+1)]
+    tasks = pd.DataFrame(tasks, columns=['Task Name', 'Group', 'Due Date', 'Completed'])
+    return tasks
 
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:
@@ -26,18 +32,14 @@ with sqlite3.connect(database_name) as conn:
     #tasks = RedBook.Data.pull_tasks_SQL(conn)
 
     #RedBook.Data.check_goal_completion(conn, goals)
-
     
-    #Take this group logic and apply it to find a streak for daily, weekly, etc for goals
+    first_due_date = datetime(2020,10,10)
+    time_between = 7
+    prefix = "Example Class Week"
+    start = 1
+    end = 4
+    group = "Education"
+    tasks = create_bulk_tasks(first_due_date, time_between, prefix, start, end, group)
+    print(tasks)
     
-    goal_name = goals['Goal Name'].iloc[0]
     
-    
-    goal_object = goals.set_index('Goal Name').loc[goal_name, 'Object']
-    streak_data, streak = goal_object.compute_streak('Month')
-
-    
-    #schedule_name = "Week"
-    #date_range = "Overlap"
-
-    #schedule_data, graph_data2 = pull_schedule_data(goals, goal_name, schedule_name, date_range)
