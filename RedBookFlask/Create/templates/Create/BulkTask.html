@@ -1,0 +1,29 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+{% for message in get_flashed_messages() %}
+<div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ message }}
+</div>
+{% endfor %}
+
+<form method="POST" action="Bulk Tasks">
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+    {{ form.task_name.label }} {{ form.task_name() }}<br>
+    {{ form.group_name_select.label }} {{ form.group_name_select() }}<br>
+    {{ form.due_date.label }} {{ form.due_date() }}<br>
+    {{ form.start.label }} {{ form.start() }}<br>
+    {{ form.end.label }} {{ form.end() }}<br>
+    {{ form.days_between.label }} {{ form.days_between() }}<br>
+
+
+
+    {{ form.submit() }}
+</form>
+
+
+
+{% endblock %}

@@ -76,6 +76,32 @@ def form_to_pandas_tasks(form):
 
     return data
 
+def create_bulk_tasks(first_due_date, time_between, prefix, start, end, group):
+    tasks = [[prefix + " "+ str(x),
+              group,
+              first_due_date + pd.Timedelta("{}D".format((x-1)* time_between)),
+              ""] for x in range(start, end+1)]
+    tasks = pd.DataFrame(tasks, columns=['Task Name', 'Group', 'Due Date', 'Completed'])
+    return tasks
+
+def form_to_pandas_tasks_bulk(form):
+    data = {"Task Name": form.task_name.data,
+            "Group": form.group_name_select.data,
+            "Due Date": pd.to_datetime(form.due_date.data),
+            "Start": form.start.data,
+            "End": form.end.data,
+            "Days Between": form.days_between.data,
+            
+            }
+    data = create_bulk_tasks(data['Due Date'], data['Days Between'], data['Task Name'],
+                             data['Start'], data['End'], data['Group'])
+    
+    
+
+    return data
+
+
+
 @create_blueprint.route("/Goals",methods=['GET', 'POST'])
 def goals_page():
     form = GoalForm()
@@ -124,6 +150,30 @@ def task_page():
         
 
     return render_template("Create/Task.html", form=form, template="Flask")
+
+@create_blueprint.route("/Bulk Tasks",methods=['GET', 'POST'])
+def bulk_task_page():
+    form = BulkTaskForm()
+    form.group_name_select.choices = update_choices()[0]
+    if form.validate_on_submit():
+        tasks = form_to_pandas_tasks_bulk(form)
+        
+        with sqlite3.connect(database_name) as conn:
+            tasks.to_sql("tasks", conn, if_exists='append', index=False)
+            df = pd.read_sql("SELECT * FROM tasks", conn)
+            df['Due Date'] = pd.to_datetime(df['Due Date'])
+            df.to_csv("Tasks.csv", index=False)
+            
+
+            
+
+        form.group_name_select.choices = update_choices()[0]
+        return render_template("Create/BulkTask.html", form=form, template="Flask")
+    else:
+        flash_errors(form)
+        
+
+    return render_template("Create/BulkTask.html", form=form, template="Flask")
 
 
 @create_blueprint.route("/Group",methods=['GET', 'POST'])
@@ -402,6 +452,15 @@ class TaskForm(FlaskForm):
     task_name = StringField('Task Name', validators=[DataRequired()])
     group_name_select = SelectField('Group Name', coerce=str)
     due_date = DateField("Due Date")
+    submit = SubmitField('Submit')
+
+class BulkTaskForm(FlaskForm):    
+    task_name = StringField('Task Name', validators=[DataRequired()])
+    group_name_select = SelectField('Group Name', coerce=str)
+    due_date = DateField("First Due Date")
+    start = IntegerField("Starting Number")
+    end = IntegerField("Ending Number")
+    days_between = IntegerField("Days Between")
     submit = SubmitField('Submit')
 
 class GroupForm(FlaskForm):

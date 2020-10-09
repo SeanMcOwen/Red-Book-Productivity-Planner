@@ -7,13 +7,7 @@ from datetime import datetime
 database_name = 'Goals.db'
 
 
-def create_bulk_tasks(first_due_date, time_between, prefix, start, end, group):
-    tasks = [[prefix + " "+ str(x),
-              group,
-              first_due_date + pd.Timedelta("{}D".format((x-1)* time_between)),
-              ""] for x in range(start, end+1)]
-    tasks = pd.DataFrame(tasks, columns=['Task Name', 'Group', 'Due Date', 'Completed'])
-    return tasks
+
 
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:
