@@ -313,6 +313,14 @@ def update_tasks_page():
             df.to_csv("Tasks.csv", index=False)
 
             tasks = RedBook.Data.pull_tasks_SQL(conn)
+            
+            completed = pd.DataFrame([[task, "Task", pd.to_datetime(datetime.today().date())]],
+                                 columns = ['Name', 'Type', 'Date'])
+            completed.to_sql("Completed", conn, if_exists='append', index=False)
+            df = pd.read_sql("SELECT * FROM Completed", conn)
+            df['Date'] = pd.to_datetime(df['Date'])
+            df.to_csv("Completed.csv", index=False)
+        
         return render_template("Create/Update Tasks.html", tasks=list(tasks['Task Name'].values), template="Flask")
 
     return render_template("Create/Update Tasks.html", tasks=list(tasks['Task Name'].values), template="Flask")

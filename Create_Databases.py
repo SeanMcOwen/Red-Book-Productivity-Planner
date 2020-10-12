@@ -29,3 +29,8 @@ def excel_to_db(conn):
         tasks = pd.read_csv("Tasks.csv")
         tasks['Due Date'] = pd.to_datetime(tasks['Due Date'])
         tasks.to_sql("tasks", conn, if_exists='replace', index=False)
+    if "Completed.csv" in os.listdir("."):
+        completed = pd.read_csv("Completed.csv")
+        completed['Date'] = pd.to_datetime(completed['Date'])
+        completed.to_sql("Completed", conn, if_exists='replace', index=False)
+        

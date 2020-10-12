@@ -112,4 +112,12 @@ def check_goal_completion(conn, goals):
         df['Start Date'] = pd.to_datetime(df['Start Date'])
         df['End Date'] = pd.to_datetime(df['End Date'])
         df.to_csv("Goals.csv", index=False)
+        
+        
+        completed = pd.DataFrame([[goal, "Goal", pd.to_datetime(datetime.today().date())]],
+                                 columns = ['Name', 'Type', 'Date'])
+        completed.to_sql("Completed", conn, if_exists='append', index=False)
+        df = pd.read_sql("SELECT * FROM Completed", conn)
+        df['Date'] = pd.to_datetime(df['Date'])
+        df.to_csv("Completed.csv", index=False)
     
