@@ -71,7 +71,7 @@ def pull_tasks_SQL(conn, filter_complete=True):
     else:
         year = today.year + 1
     month = datetime(year, month, 1) - pd.Timedelta("1D")
-    tasks['Month'] = tasks['Due Date'] <= week
+    tasks['Month'] = tasks['Due Date'] <= month
     
     month = today.month
     if today.month == 10:
