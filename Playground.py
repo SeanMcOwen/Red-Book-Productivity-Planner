@@ -27,13 +27,4 @@ with sqlite3.connect(database_name) as conn:
 
     #RedBook.Data.check_goal_completion(conn, goals)
     
-    first_due_date = datetime(2020,10,10)
-    time_between = 7
-    prefix = "Example Class Week"
-    start = 1
-    end = 4
-    group = "Education"
-    tasks = create_bulk_tasks(first_due_date, time_between, prefix, start, end, group)
-    print(tasks)
-    
     
