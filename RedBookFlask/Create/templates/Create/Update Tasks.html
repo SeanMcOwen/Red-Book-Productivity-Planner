@@ -10,11 +10,16 @@
   <form action={{ url_for('create.update_tasks_page') }} method="POST" >
   <tr>
   <td>
-{{ w }}
+{{ w["Task Name"] }}
 </td>
-
+  <td>
+{{ w["Group"] }}
+</td>
+  <td>
+{{ w["Due Date"] }}
+</td>
    <td>
-    <input type="hidden" id="task" name="task" value='{{ w }}'>
+    <input type="hidden" id="task" name="task" value='{{ w["Task Name"]  }}'>
 
    <input type="submit" value="Complete">
    </td>

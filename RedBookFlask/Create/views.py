@@ -321,9 +321,9 @@ def update_tasks_page():
             df['Date'] = pd.to_datetime(df['Date'])
             df.to_csv("Completed.csv", index=False)
         
-        return render_template("Create/Update Tasks.html", tasks=list(tasks['Task Name'].values), template="Flask")
+        return render_template("Create/Update Tasks.html", tasks=tasks.to_dict(orient='records'), template="Flask")
 
-    return render_template("Create/Update Tasks.html", tasks=list(tasks['Task Name'].values), template="Flask")
+    return render_template("Create/Update Tasks.html", tasks=tasks.to_dict(orient='records'), template="Flask")
 
 
 
