@@ -104,6 +104,11 @@ def form_to_pandas_tasks_bulk(form):
 
 @create_blueprint.route("/Goals",methods=['GET', 'POST'])
 def goals_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'groups'):
+            error = "<h3>Please create a group before creating goals.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     form = GoalForm()
     form.group_name_select.choices, form.progress_name_select.choices = update_choices()
     if form.validate_on_submit():
