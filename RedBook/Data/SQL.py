@@ -122,4 +122,11 @@ def check_goal_completion(conn, goals):
         df = pd.read_sql("SELECT * FROM Completed", conn)
         df['Date'] = pd.to_datetime(df['Date'])
         df.to_csv("Completed.csv", index=False)
+        
+def check_table_exists(conn, name):
+    curr = conn.cursor()
+    tables = curr.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+    tables = [x[0] for x in tables]
+    return name in tables
+
     
