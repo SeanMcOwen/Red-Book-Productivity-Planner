@@ -18,6 +18,11 @@ goals_blueprint = Blueprint('goals',
 @goals_blueprint.route("/Goals",methods=['GET', 'POST'])
 def goals_page():
     with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'goals'):
+            error = "<h3>Please create a goal first.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
+    with sqlite3.connect(database_name) as conn:
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
         expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
         expected_progress_table_today = RedBook.Tables.build_expected_work_tables_today(goals)

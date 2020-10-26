@@ -109,6 +109,10 @@ def goals_page():
             error = "<h3>Please create a group before creating goals.</h3>"
             return render_template("ErrorPage.html", error=error,
                                    template="Flask")
+        if not RedBook.Data.check_table_exists(conn, 'progress'):
+            error = "<h3>Please create a progress object before creating goals.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     form = GoalForm()
     form.group_name_select.choices, form.progress_name_select.choices = update_choices()
     if form.validate_on_submit():
@@ -135,6 +139,11 @@ def goals_page():
 
 @create_blueprint.route("/Task",methods=['GET', 'POST'])
 def task_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'groups'):
+            error = "<h3>Please create a group before creating tasks.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     form = TaskForm()
     form.group_name_select.choices = update_choices()[0]
     if form.validate_on_submit():
@@ -158,6 +167,11 @@ def task_page():
 
 @create_blueprint.route("/Bulk Tasks",methods=['GET', 'POST'])
 def bulk_task_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'groups'):
+            error = "<h3>Please create a group before creating tasks.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     form = BulkTaskForm()
     form.group_name_select.choices = update_choices()[0]
     if form.validate_on_submit():
@@ -245,6 +259,11 @@ def progress_page():
 @create_blueprint.route("/Update Progress",methods=['GET', 'POST'])
 def update_progress_page():
     with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'progress'):
+            error = "<h3>Please create a progress task.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
+    with sqlite3.connect(database_name) as conn:
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
     if request.method == 'POST':
         goal_name  = request.values.get('goal')
@@ -306,6 +325,11 @@ def update_progress_page():
 @create_blueprint.route("/Update Tasks",methods=['GET', 'POST'])
 def update_tasks_page():
     with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'tasks'):
+            error = "<h3>Please create a task.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
+    with sqlite3.connect(database_name) as conn:
         tasks = RedBook.Data.pull_tasks_SQL(conn)
     if request.method == 'POST':
         task  = request.values.get('task')
@@ -334,6 +358,11 @@ def update_tasks_page():
 
 @create_blueprint.route("/Update Habits",methods=['GET', 'POST'])
 def update_habits_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'habits'):
+            error = "<h3>Please create a habit.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     with sqlite3.connect(database_name) as conn:
         habits, work_log = RedBook.Data.process_habits_SQL(conn)
     if request.method == 'POST':
@@ -391,6 +420,11 @@ def update_habits_page():
 
 @create_blueprint.route("/Habits",methods=['GET', 'POST'])
 def habits_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'groups'):
+            error = "<h3>Please create a group before creating habits.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     form = HabitsForm()
     form.group_name_select.choices = update_choices()[0]
     if form.validate_on_submit():
