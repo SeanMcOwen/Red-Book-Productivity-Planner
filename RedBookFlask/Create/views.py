@@ -6,7 +6,7 @@ from wtforms import (StringField, BooleanField,
                      RadioField,SelectField,TextField,
                      TextAreaField,SubmitField, FloatField, IntegerField)
 from wtforms.fields.html5 import DateField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NoneOf
 import RedBook
 import pandas as pd
 import os
@@ -477,11 +477,15 @@ class GoalForm(FlaskForm):
         with sqlite3.connect(database_name) as conn:
             existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
             existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique().values)
+            
     except:
         existing_groups = []
         existing_progress = []
+    with sqlite3.connect(database_name) as conn:
+        existing_goals = list(pd.read_sql("SELECT * FROM goals", conn)['Goal Name'].unique())
+
     
-    goal_name = StringField('Goal Name', validators=[DataRequired()])
+    goal_name = StringField('Goal Name', validators=[DataRequired(), NoneOf(existing_goals)])
     group_name_select = SelectField('Group Name', coerce=str)
     progress_name_select = SelectField('Progress Name', coerce=str)
     end_progress = FloatField("Goal Progress")
