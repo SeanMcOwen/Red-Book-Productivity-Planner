@@ -7,11 +7,7 @@ from datetime import datetime
 database_name = 'Goals.db'
 
 
-def filter_increment_hiding(goals, tables):
-    for key in tables.keys():
-        table = tables[key]
-        table = table[goals[key].reindex(table.index).astype(bool)]
-        tables[key] = table
+
 
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:

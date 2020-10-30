@@ -129,4 +129,9 @@ def check_table_exists(conn, name):
     tables = [x[0] for x in tables]
     return name in tables
 
+def filter_increment_hiding(goals, tables):
+    for key in tables.keys():
+        table = tables[key]
+        table = table[goals[key].reindex(table.index).astype(bool)]
+        tables[key] = table
     

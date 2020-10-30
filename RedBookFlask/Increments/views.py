@@ -20,6 +20,8 @@ def increments_page():
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
         expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
         expected_progress_table_today = RedBook.Tables.build_expected_work_tables_today(goals)
+    RedBook.Data.filter_increment_hiding(goals,expected_work_tables)
+    RedBook.Data.filter_increment_hiding(goals,expected_progress_table_today)
     tables = ""
     for x in expected_work_tables.keys():
         tables += "<h3>"+x+"</h3>"

@@ -129,7 +129,7 @@ class Goal:
         self.current_progress = progress_log.iloc[-1]
         self.progress_log = progress_log.reindex(pd.date_range(self.start_date-pd.Timedelta("1D"), pd.to_datetime(datetime.today().date())))
         self.progress_log = self.progress_log.fillna(method='ffill')
-        self.start_progress = progress_log[goal_params['Start Date'] - pd.Timedelta("1D")]
+        self.start_progress = self.progress_log[goal_params['Start Date'] - pd.Timedelta("1D")]
         self.progress_log = self.progress_log.fillna(self.start_progress)
 
         
