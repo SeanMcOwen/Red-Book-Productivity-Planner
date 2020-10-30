@@ -132,6 +132,6 @@ def check_table_exists(conn, name):
 def filter_increment_hiding(goals, tables):
     for key in tables.keys():
         table = tables[key]
-        table = table[goals[key].reindex(table.index).astype(bool)]
+        table = table[goals.set_index("Goal Name")[key].reindex(table.index).astype(bool)]
         tables[key] = table
     
