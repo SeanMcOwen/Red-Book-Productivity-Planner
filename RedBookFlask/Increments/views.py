@@ -2,6 +2,7 @@ from flask import Blueprint,render_template,redirect,url_for
 from bokeh.embed import server_document
 import sqlite3
 import RedBook
+from flask_table import Table, Col
 
 database_name = 'Goals.db'
 
@@ -97,8 +98,16 @@ def task_increments_page():
     tables += temp.to_html(index=False)
     tables += "<br>"
     
+    task_table = TaskTable([[x[0], x[1]] for x in temp.values])
         
-    return render_template("HabitsIncrements.html", tables1=tables, template="Flask")
+    return render_template("TaskIncrements.html", tables1=tables, template="Flask")
 
 
-
+class TaskTable(Table):
+    task_name = Col('Task Name')
+    due_date = Col('Due Date')
+    
+class TaskItem(object):
+    def __init__(self, task_name, due_date):
+        self.task_name = task_name
+        self.due_date = due_date

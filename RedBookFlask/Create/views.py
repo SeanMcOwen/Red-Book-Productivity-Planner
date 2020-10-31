@@ -454,7 +454,10 @@ def habits_page():
 def update_choices():
     with sqlite3.connect(database_name) as conn:
         existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
-        existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+        try:
+            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+        except:
+            existing_progress = []
             
     return [(x, x) for x in existing_groups], [(x, x) for x in existing_progress]
 
@@ -477,12 +480,12 @@ class GoalForm(FlaskForm):
         with sqlite3.connect(database_name) as conn:
             existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
             existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique().values)
-            
+            existing_goals = list(pd.read_sql("SELECT * FROM goals", conn)['Goal Name'].unique())
     except:
         existing_groups = []
         existing_progress = []
-    with sqlite3.connect(database_name) as conn:
-        existing_goals = list(pd.read_sql("SELECT * FROM goals", conn)['Goal Name'].unique())
+        existing_goals = []
+        
 
     
     goal_name = StringField('Goal Name', validators=[DataRequired(), NoneOf(existing_goals)])
