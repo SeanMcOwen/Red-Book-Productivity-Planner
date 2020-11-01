@@ -75,13 +75,14 @@ def pull_tasks_SQL(conn, filter_complete=True):
     month = datetime(year, month, 1) - pd.Timedelta("1D")
     tasks['Month'] = tasks['Due Date'] <= month
     
-    month = today.month
-    if today.month == 10:
+    month = 1+(today.quarter-1)*3
+    if month == 10:
         year = today.year + 1
         month = 1
     else:
         year = today.year
         month = month + 3
+        
     quarter = datetime(year, month, 1) - pd.Timedelta("1D")
     tasks['Quarter'] = tasks['Due Date'] <= quarter
     
