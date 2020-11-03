@@ -98,29 +98,36 @@ def task_increments_page():
     tables += temp.to_html(index=False)
     tables += "<br>"
     
-    """
+    
     tables = ""
     for col in ["Today","Week","Month","Quarter","Year"]:
         temp = tasks[tasks[col]][['Task Name', 'Due Date']]
         if len(temp) > 0:
             tables += "<h3>"+col+"</h3>"
-            tables += TaskTable([[x[0], x[1]] for x in temp.values]).__html__()
+            tables += TaskTable([TaskItem(x[0], x[1]) for x in temp.values]).__html__()
             tables += "<br>"
         else:
             continue
     temp = tasks[['Task Name', 'Due Date']]
     tables += "<h3>All Tasks</h3>"
-    tables += TaskTable([{"Task Name": x[0], "Due Date":x[1]} for x in temp.values]).__html__()
+    tables += TaskTable([TaskItem(x[0], x[1]) for x in temp.values]).__html__()
     tables += "<br>"
-    """
+    
     
         
     return render_template("TaskIncrements.html", tables1=tables, template="Flask")
 
 
 class TaskTable(Table):
+    allow_sort = True
     task_name = Col('Task Name')
     due_date = Col('Due Date')
+    def sort_url(self, col_key, reverse=False):
+        if reverse:
+            direction =  'desc'
+        else:
+            direction = 'asc'
+        return url_for('increments.task_increments_page', sort=col_key, direction=direction)
     
 class TaskItem(object):
     def __init__(self, task_name, due_date):
