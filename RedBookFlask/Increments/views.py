@@ -2,7 +2,6 @@ from flask import Blueprint,render_template,redirect,url_for
 from bokeh.embed import server_document
 import sqlite3
 import RedBook
-from flask_table import Table, Col
 
 database_name = 'Goals.db'
 
@@ -81,6 +80,7 @@ def habits_increments_page():
 
 @increments_blueprint.route("/Tasks Increments",methods=['GET', 'POST'])
 def task_increments_page():
+
     with sqlite3.connect(database_name) as conn:
         tasks = RedBook.Data.pull_tasks_SQL(conn)
     
@@ -98,38 +98,9 @@ def task_increments_page():
     tables += temp.to_html(index=False)
     tables += "<br>"
     
-    
-    tables = ""
-    for col in ["Today","Week","Month","Quarter","Year"]:
-        temp = tasks[tasks[col]][['Task Name', 'Due Date']]
-        if len(temp) > 0:
-            tables += "<h3>"+col+"</h3>"
-            tables += TaskTable([TaskItem(x[0], x[1]) for x in temp.values]).__html__()
-            tables += "<br>"
-        else:
-            continue
-    temp = tasks[['Task Name', 'Due Date']]
-    tables += "<h3>All Tasks</h3>"
-    tables += TaskTable([TaskItem(x[0], x[1]) for x in temp.values]).__html__()
-    tables += "<br>"
+
     
     
         
     return render_template("TaskIncrements.html", tables1=tables, template="Flask")
 
-
-class TaskTable(Table):
-    allow_sort = True
-    task_name = Col('Task Name')
-    due_date = Col('Due Date')
-    def sort_url(self, col_key, reverse=False):
-        if reverse:
-            direction =  'desc'
-        else:
-            direction = 'asc'
-        return url_for('increments.task_increments_page', sort=col_key, direction=direction)
-    
-class TaskItem(object):
-    def __init__(self, task_name, due_date):
-        self.task_name = task_name
-        self.due_date = due_date
