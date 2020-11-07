@@ -27,12 +27,14 @@ from RedBookFlask.Increments.views import increments_blueprint
 from RedBookFlask.Goals.views import goals_blueprint
 from RedBookFlask.Groups.views import groups_blueprint
 from RedBookFlask.Create.views import create_blueprint
+from RedBookFlask.Playground.views import playground_blueprint
 
 app.register_blueprint(schedules_blueprint,url_prefix="/Schedules")
 app.register_blueprint(increments_blueprint,url_prefix="/Increments")
 app.register_blueprint(goals_blueprint,url_prefix="/Goals")
 app.register_blueprint(groups_blueprint,url_prefix="/Groups")
 app.register_blueprint(create_blueprint,url_prefix="/Create")
+app.register_blueprint(playground_blueprint,url_prefix="/Playground")
 
 app.config['SECRET_KEY'] = 'TEST'
 
