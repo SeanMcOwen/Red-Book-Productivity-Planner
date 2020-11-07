@@ -16,10 +16,15 @@ increments_blueprint = Blueprint('increments',
 
 @increments_blueprint.route("/Increments",methods=['GET', 'POST'])
 def increments_page():
-    with sqlite3.connect(database_name) as conn:
-        goals, work_log = RedBook.Data.process_goals_SQL(conn)
-        expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
-        expected_progress_table_today = RedBook.Tables.build_expected_work_tables_today(goals)
+    try:
+        with sqlite3.connect(database_name) as conn:
+            goals, work_log = RedBook.Data.process_goals_SQL(conn)
+            expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
+            expected_progress_table_today = RedBook.Tables.build_expected_work_tables_today(goals)
+    except:
+        error = "<h3>Please create a goal first.</h3>"
+        return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     RedBook.Data.filter_increment_hiding(goals,expected_work_tables)
     RedBook.Data.filter_increment_hiding(goals,expected_progress_table_today)
     tables = ""
@@ -97,8 +102,7 @@ def task_increments_page():
     tables += "<h3>All Tasks</h3>"
     tables += temp.to_html(index=False)
     tables += "<br>"
-    
-
+    print(temp.to_html(index=False))
     
     
         
