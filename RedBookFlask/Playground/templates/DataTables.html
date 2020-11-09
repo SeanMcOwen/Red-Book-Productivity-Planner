@@ -2,7 +2,9 @@
 
 {% block content %}
 <script>$(document).ready( function () {
-    $('#example').DataTable();
+    $('#example').DataTable({
+    "paging":   false,
+    });
 } );</script>
 <table id="example" class="display">
     <thead>
