@@ -5,6 +5,11 @@
     $('#example').DataTable({
     "paging":   false,
     });
+} );
+$(document).ready( function () {
+    $('#today').DataTable({
+    "paging":   false,
+    });
 } );</script>
 <table id="example" class="display">
     <thead>
@@ -24,5 +29,7 @@
         </tr>
     </tbody>
 </table>
+
+{{tables|safe}}
 
 {% endblock %}
