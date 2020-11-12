@@ -91,7 +91,7 @@ def task_increments_page():
     
     tables = ""
     for col in ["Today","Week","Month","Quarter","Year"]:
-        temp = tasks[tasks[col]][['Task Name', 'Due Date']]
+        temp = tasks[tasks[col]][['Task Name', 'Due Date', 'Group']]
         if len(temp) > 0:
             tables += "<h3>"+col+"</h3>"
             tables += """
@@ -100,6 +100,7 @@ def task_increments_page():
                 <tr>
                     <th>Task Name</th>
                     <th>Due Date</th>
+                    <th>Group</th>
                 </tr>
             </thead>
             <tbody>
@@ -109,14 +110,15 @@ def task_increments_page():
                 <tr>
                     <td>{}</td>
                     <td>{}</td>
+                    <td>{}</td>
                 </tr>
-                """.format(vals[0], vals[1])
+                """.format(vals[0], vals[1], vals[2])
             tables +=  """</tbody>
         </table>"""
             tables += "<br>"
         else:
             continue
-    temp = tasks[['Task Name', 'Due Date']]
+    temp = tasks[['Task Name', 'Due Date', 'Group']]
     tables += "<h3>All Tasks</h3>"
 
     
@@ -127,6 +129,7 @@ def task_increments_page():
         <tr>
             <th>Task Name</th>
             <th>Due Date</th>
+            <th>Group</th>
         </tr>
     </thead>
     <tbody>
@@ -136,8 +139,9 @@ def task_increments_page():
         <tr>
             <td>{}</td>
             <td>{}</td>
+            <td>{}</td>
         </tr>
-        """.format(vals[0], vals[1])
+        """.format(vals[0], vals[1], vals[2])
     tables +=  """</tbody>
 </table>"""
     
