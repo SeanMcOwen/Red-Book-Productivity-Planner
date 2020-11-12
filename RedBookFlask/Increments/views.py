@@ -94,17 +94,54 @@ def task_increments_page():
         temp = tasks[tasks[col]][['Task Name', 'Due Date']]
         if len(temp) > 0:
             tables += "<h3>"+col+"</h3>"
-            tables += temp.to_html(index=False)
+            tables += """
+            <table id="{}" class="display">
+            <thead>
+                <tr>
+                    <th>Task Name</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            """.format(col)
+            for vals in temp.values:
+                tables +=  """
+                <tr>
+                    <td>{}</td>
+                    <td>{}</td>
+                </tr>
+                """.format(vals[0], vals[1])
+            tables +=  """</tbody>
+        </table>"""
             tables += "<br>"
         else:
             continue
     temp = tasks[['Task Name', 'Due Date']]
     tables += "<h3>All Tasks</h3>"
-    tables += temp.to_html(index=False)
-    tables += "<br>"
-    print(temp.to_html(index=False))
+
+    
+    
+    tables += """
+    <table id="All" class="display">
+    <thead>
+        <tr>
+            <th>Task Name</th>
+            <th>Due Date</th>
+        </tr>
+    </thead>
+    <tbody>
+    """
+    for vals in temp.values:
+        tables +=  """
+        <tr>
+            <td>{}</td>
+            <td>{}</td>
+        </tr>
+        """.format(vals[0], vals[1])
+    tables +=  """</tbody>
+</table>"""
     
     
         
-    return render_template("TaskIncrements.html", tables1=tables, template="Flask")
+    return render_template("TaskIncrements.html", tables=tables, template="Flask")
 

@@ -1,8 +1,39 @@
-{% extends "Base.html" %}
+{% extends "BaseDT.html" %}
 
 {% block content %}
-<h2>Habit Increments</h2>
-<br><br>
-{{tables1|safe}}
+<h2>Task Increments</h2>
+<script>$(document).ready( function () {
+    $('#Today').DataTable({
+    "paging":   false,
+    });
+} );
+$(document).ready( function () {
+    $('#Week').DataTable({
+    "paging":   false,
+    });
+} );
+$(document).ready( function () {
+    $('#Month').DataTable({
+    "paging":   false,
+    });
+} );
+$(document).ready( function () {
+    $('#Quarter').DataTable({
+    "paging":   false,
+    });
+} );
+$(document).ready( function () {
+    $('#Year').DataTable({
+    "paging":   false,
+    });
+} );
+$(document).ready( function () {
+    $('#All').DataTable({
+    "paging":   false,
+    });
+} );</script>
+
+
+{{tables|safe}}
 
 {% endblock %}
