@@ -54,6 +54,11 @@ def increments_page():
 
 @increments_blueprint.route("/Daily Increments Tracker")
 def daily_increments_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'goals'):
+            error = "<h3>Please create a goal first.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     script = server_document('http://localhost:5006/dailyincrements')
     return render_template("embed.html", script=script, template="Flask")
 
@@ -61,11 +66,21 @@ def daily_increments_page():
 
 @increments_blueprint.route("/Progress Bars")
 def progress_bars_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'goals'):
+            error = "<h3>Please create a goal first.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     script = server_document('http://localhost:5006/progressbars')
     return render_template("embed.html", script=script, template="Flask")
 
 @increments_blueprint.route("/Habits Increments",methods=['GET', 'POST'])
 def habits_increments_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'habits'):
+            error = "<h3>Please create a habit.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     with sqlite3.connect(database_name) as conn:
         habits, progress = RedBook.Data.process_habits_SQL(conn)
         table = RedBook.Tables.build_expected_progress_table_habits(habits)
@@ -85,7 +100,11 @@ def habits_increments_page():
 
 @increments_blueprint.route("/Tasks Increments",methods=['GET', 'POST'])
 def task_increments_page():
-
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'tasks'):
+            error = "<h3>Please create a task.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     with sqlite3.connect(database_name) as conn:
         tasks = RedBook.Data.pull_tasks_SQL(conn)
     

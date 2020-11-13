@@ -16,6 +16,11 @@ schedules_blueprint = Blueprint('schedules',
 
 @schedules_blueprint.route("/Schedules")
 def schedules_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'goals'):
+            error = "<h3>Please create a goal first.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     script = server_document('http://localhost:5006/schedules')
     return render_template("embed.html", script=script, template="Flask")
 
@@ -26,6 +31,11 @@ def schedules_page():
    
 @schedules_blueprint.route("/EffectiveDates")
 def effective_dates_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'goals'):
+            error = "<h3>Please create a goal first.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     with sqlite3.connect(database_name) as conn:
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
         goals = goals[goals['Group'] != 'Fitness']
@@ -38,11 +48,21 @@ def effective_dates_page():
 
 @schedules_blueprint.route("/SchedulesPIT")
 def schedules_PIT_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'goals'):
+            error = "<h3>Please create a goal first.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     script = server_document('http://localhost:5006/schedulesPIT')
     return render_template("embed.html", script=script, template="Flask")
 
 
 @schedules_blueprint.route("/calendar")
 def calendar_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'goals'):
+            error = "<h3>Please create a goal first.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
     script = server_document('http://localhost:5006/calendar')
     return render_template("embed.html", script=script, template="Flask")
