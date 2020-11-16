@@ -246,8 +246,10 @@ def progress_page():
             add2.to_sql("progress_params", conn, if_exists='append', index=False)
             df = pd.read_sql("SELECT * FROM progress_params", conn)
             df.to_csv("progress_params.csv")
-
+        form = ProgressForm()
         render_template("Create/Progress.html", form=form, template="Flask")
+    else:
+        flash_errors(form)
     #try:
     #    with sqlite3.connect(database_name) as conn:
     #        temp = pd.read_sql("SELECT * FROM groups", conn)['Group'].values
@@ -479,7 +481,7 @@ class GoalForm(FlaskForm):
     try:
         with sqlite3.connect(database_name) as conn:
             existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
-            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique().values)
+            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
             existing_goals = list(pd.read_sql("SELECT * FROM goals", conn)['Goal Name'].unique())
     except:
         existing_groups = []
@@ -523,7 +525,12 @@ class GroupForm(FlaskForm):
 
 
 class ProgressForm(FlaskForm):
-    progress_name = StringField('Progress Name', validators=[DataRequired()])
+    try:
+        with sqlite3.connect(database_name) as conn:
+            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+    except:
+        existing_progress = []
+    progress_name = StringField('Progress Name', validators=[DataRequired(),  NoneOf(existing_progress)])
     progress_type = SelectField('Progress Type', choices=[(x, x) for x in ["Add", "Progress"]])
     units = FloatField("Units", default=1)
     starting_value = FloatField("Starting Value", default=0)

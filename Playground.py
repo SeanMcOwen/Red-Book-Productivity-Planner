@@ -11,7 +11,7 @@ database_name = 'Goals.db'
 
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:
-    
+    existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
     #goals, work_log = RedBook.Data.process_goals_SQL(conn)
     #expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
     #RedBook.Data.filter_increment_hiding(goals, expected_work_tables)
@@ -32,5 +32,5 @@ with sqlite3.connect(database_name) as conn:
     #tasks = RedBook.Data.pull_tasks_SQL(conn)
 
     #RedBook.Data.check_goal_completion(conn, goals)
-    tasks = RedBook.Data.pull_tasks_SQL(conn)
+    #tasks = RedBook.Data.pull_tasks_SQL(conn)
     
