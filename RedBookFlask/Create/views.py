@@ -246,7 +246,8 @@ def progress_page():
             add2.to_sql("progress_params", conn, if_exists='append', index=False)
             df = pd.read_sql("SELECT * FROM progress_params", conn)
             df.to_csv("progress_params.csv")
-        form = ProgressForm()
+        
+        form.progress_name.validators[1].values += progress_name
         render_template("Create/Progress.html", form=form, template="Flask")
     else:
         flash_errors(form)
