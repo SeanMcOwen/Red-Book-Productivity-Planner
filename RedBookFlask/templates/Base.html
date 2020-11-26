@@ -26,65 +26,59 @@
       <li class="nav-item active">
         <a class="nav-link" href="/">Home</a>
       </li>
-            <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Create</a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{{ url_for('create.goals_page') }}">Goals</a>
-          <a class="dropdown-item" href="{{ url_for('create.group_page') }}">Group</a>
-          <a class="dropdown-item" href="{{ url_for('create.progress_page') }}">Progress</a>
-          <a class="dropdown-item" href="{{ url_for('create.habits_page') }}">Habits</a>
-          <a class="dropdown-item" href="{{ url_for('create.task_page') }}">Task</a>
-          <a class="dropdown-item" href="{{ url_for('create.bulk_task_page') }}">Bulk Tasks</a>
-
-        </div>
-      </li>
-      
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Update</a>
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Group</a>
         <div class="dropdown-menu">
-
-          
-          <a class="dropdown-item" href="{{ url_for('create.update_progress_page') }}">Update Progress</a>
-          <a class="dropdown-item" href="{{ url_for('create.update_habits_page') }}">Update Habits</a>
-          <a class="dropdown-item" href="{{ url_for('create.update_tasks_page') }}">Update Tasks</a>
+        <a class="dropdown-item" href="{{ url_for('create.group_page') }}">Create Group</a>
+        <a class="dropdown-item" href="{{ url_for('groups.calendar_progress_page') }}">Calendar Progress</a>
+        
         </div>
       </li>
-      
+            <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Progress</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="{{ url_for('create.progress_page') }}">Create Progress</a>
+          <a class="dropdown-item" href="{{ url_for('create.update_progress_page') }}">Update Progress</a>
+        </div>
+      </li>
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Goals</a>
         <div class="dropdown-menu">
-          <a class="dropdown-item" href="{{ url_for('goals.goals_page') }}">Goals</a>
-
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Increments</a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{{ url_for('increments.increments_page') }}">Increments</a>
-                  <a class="dropdown-item" href="{{ url_for('increments.daily_increments_page') }}">Historical Increments</a>
+                  <a class="dropdown-item" href="{{ url_for('create.goals_page') }}">Create Goal</a>
+                  <a class="dropdown-item" href="{{ url_for('goals.goals_page') }}">View Goals</a>
+                  <a class="dropdown-item" href="{{ url_for('increments.increments_page') }}">Goal Increments</a>
+                  <a class="dropdown-item" href="{{ url_for('increments.daily_increments_page') }}">Historical Goal Increments</a>
                   <a class="dropdown-item" href="{{ url_for('increments.progress_bars_page') }}">Progress Bars</a>
-                  <a class="dropdown-item" href="{{ url_for('increments.habits_increments_page') }}">Habits Increments</a>
-                  <a class="dropdown-item" href="{{ url_for('increments.task_increments_page') }}">Tasks Increments</a>
-
-        </div>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Schedules</a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{{ url_for('schedules.schedules_page') }}">Schedules</a>
+                            <a class="dropdown-item" href="{{ url_for('schedules.schedules_page') }}">Schedules</a>
           <a class="dropdown-item" href="{{ url_for('schedules.calendar_page') }}">Calendar</a>
           <a class="dropdown-item" href="{{ url_for('schedules.schedules_PIT_page') }}">PIT Schedules</a>
           <a class="dropdown-item" href="{{ url_for('schedules.effective_dates_page') }}">Effective Dates</a>
-
         </div>
       </li>
             <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Groups</a>
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="{{ url_for('groups.calendar_progress_page') }}">Calendar Progress</a>
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Habits</a>
+
+                    <div class="dropdown-menu">
+<a class="dropdown-item" href="{{ url_for('create.habits_page') }}">Create Habits</a>
+
+<a class="dropdown-item" href="{{ url_for('create.update_habits_page') }}">Update Habits</a>
+                  <a class="dropdown-item" href="{{ url_for('increments.habits_increments_page') }}">Habit Increments</a>
 
         </div>
       </li>
+                  <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Tasks</a>
+                <div class="dropdown-menu">
+
+          <a class="dropdown-item" href="{{ url_for('create.task_page') }}">Create Task</a>
+          <a class="dropdown-item" href="{{ url_for('create.bulk_task_page') }}">Create Bulk Tasks</a>
+          <a class="dropdown-item" href="{{ url_for('create.update_tasks_page') }}">Update Tasks</a>
+                            <a class="dropdown-item" href="{{ url_for('increments.task_increments_page') }}">Task Increments</a>
+
+                  </div>
+      </li>
+      
+
     </ul>
   </div>
 </nav>
