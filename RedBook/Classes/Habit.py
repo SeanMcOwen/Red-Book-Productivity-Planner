@@ -21,6 +21,25 @@ def create_progress_log2(progress_log, frequency):
         return progress_log
     else:
         assert False
+        
+def create_progress_log3(progress_log, progress_log2, frequency):
+    progress_log = progress_log.copy()
+    if frequency == 'Daily':
+        return progress_log
+    elif frequency == 'Weekly':
+        progress_log.iloc[:] = progress_log2.loc[pd.MultiIndex.from_tuples(list(zip(*[progress_log.index.year, progress_log.index.week])))].values
+        return progress_log
+    elif frequency == "Monthly":
+        progress_log.iloc[:] = progress_log2.loc[pd.MultiIndex.from_tuples(list(zip(*[progress_log.index.year, progress_log.index.month])))].values
+        return progress_log
+    elif frequency == "Quarterly":
+        progress_log.iloc[:] = progress_log2.loc[pd.MultiIndex.from_tuples(list(zip(*[progress_log.index.year, progress_log.index.quarter])))].values
+        return progress_log
+    elif frequency == "Yearly":
+        progress_log.iloc[:] = progress_log2.loc[progress_log.index.year].values
+        return progress_log
+    else:
+        assert False
 
 
 class Habit:
@@ -37,5 +56,6 @@ class Habit:
         self.progress_log = self.progress_log.fillna(0)
         
         self.progress_log2 = create_progress_log2(self.progress_log, self.frequency)
+        self.progress_log3 = create_progress_log3(self.progress_log, self.progress_log2, self.frequency)
         
         self.streak = (self.progress_log2.iloc[:-1][::-1] >= self.units).astype(int).cumprod().sum()
