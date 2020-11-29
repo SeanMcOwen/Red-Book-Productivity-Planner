@@ -17,8 +17,8 @@ habits_blueprint = Blueprint('habits',
 
 @habits_blueprint.route("/Streaks",methods=['GET', 'POST'])
 def streaks_page():
-    pass
+    return render_template("Habits.html", template="Flask")
 
 @habits_blueprint.route("/Habits",methods=['GET', 'POST'])
 def habits_page():
-    pass
+    return render_template("Streaks.html", template="Flask")
