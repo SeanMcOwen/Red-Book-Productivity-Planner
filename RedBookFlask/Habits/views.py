@@ -31,7 +31,7 @@ def streaks_page():
         tables_html += tables[key].to_html(index=False)
         tables_html+="<br><br>"
         
-    return render_template("Habits.html", tables=tables_html, template="Flask")
+    return render_template("Streaks.html", tables=tables_html, template="Flask")
 
 @habits_blueprint.route("/Habits",methods=['GET', 'POST'])
 def habits_page():
@@ -41,5 +41,17 @@ def habits_page():
             return render_template("ErrorPage.html", error=error,
                                    template="Flask")
         habits, progress = RedBook.Data.process_habits_SQL(conn)
+        
+    if request.method == 'POST':
+        habit_name  = request.values.get('habit')
+        habit_names = list(habits['Habit Name'].values)
+        habit_names.pop(habit_names.index(habit_name))
+        habit_names = [habit_name] + habit_names
+        return render_template("Habits.html", habits=habit_names,template="Flask")
+
+        
     
-    return render_template("Streaks.html", template="Flask")
+    return render_template("Habits.html", habits=list(habits['Habit Name'].values),template="Flask")
+
+
+
