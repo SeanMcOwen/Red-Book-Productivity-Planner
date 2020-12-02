@@ -12,4 +12,53 @@
 <input type="submit" value="Load">
 </form>
 
+
+{% if habit_data %}
+<table>
+  <tr>
+    <td>
+      Habit Name
+      </td>
+      <td>
+        Group
+        </td>
+    <td>
+      Start Date
+      </td>
+    </tr>
+  <tr>
+    <td>
+      {{habit_data["Habit Name"]}}
+      </td>
+      <td>
+        {{habit_data["Group"]}}
+        </td>
+    <td>
+      {{habit_data["Start Date"]}}
+      </td>
+    </tr>
+  <tr>
+    <td>
+      Frequency
+      </td>
+      <td>
+        Units
+        </td>
+    <td>
+      Streak
+      </td>
+    </tr>
+  <tr>
+    <td>
+      {{habit_data["Frequency"]}}
+      </td>
+      <td>
+        {{habit_data["Units"]}}
+        </td>
+    <td>
+      {{habit_data["Streak"]}}
+      </td>
+    </tr>
+  </table>
+{% endif %}
 {% endblock %}

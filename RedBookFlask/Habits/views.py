@@ -47,7 +47,17 @@ def habits_page():
         habit_names = list(habits['Habit Name'].values)
         habit_names.pop(habit_names.index(habit_name))
         habit_names = [habit_name] + habit_names
-        return render_template("Habits.html", habits=habit_names,template="Flask")
+        
+        temp = habits.set_index('Habit Name').loc[habit_name]
+        habit_data = {}
+        habit_data = {"Habit Name": habit_name,
+                      "Frequency": temp['Frequency'],
+                      "Group": temp['Group'],
+                      "Start Date": temp['Start Date'],
+                      "Units": temp['Units'],
+                      "Streak": temp['Object'].streak}
+        
+        return render_template("Habits.html", habits=habit_names,habit_data=habit_data,template="Flask")
 
         
     
