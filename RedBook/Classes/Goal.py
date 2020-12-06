@@ -194,6 +194,9 @@ class Goal:
             schedule = self.schedules[key] <= self.current_progress
             self.effective_schedule_dates[key] = schedule[schedule].index.max()
             
+        self.max_goal_today = max(self.schedule_goals_today.values())
+        self.max_increment_today = max(self.increments_today.values())
+            
     def build_daily_increment_tracker(self):
         progress_left = (self.end_progress - self.progress_log)
         days = (self.end_date - progress_left.index).days - 1

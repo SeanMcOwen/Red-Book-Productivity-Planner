@@ -17,7 +17,7 @@ with sqlite3.connect(database_name) as conn:
     #RedBook.Data.filter_increment_hiding(goals, expected_work_tables)
     #print(RedBook.Data.check_table_exists(conn, 'groups'))
     #tables 
-    #goals, work_log = RedBook.Data.process_goals_SQL(conn)
+    goals, work_log = RedBook.Data.process_goals_SQL(conn)
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
     #expected_work_table = RedBook.Tables.build_expected_work_table(goals)
     
@@ -26,9 +26,9 @@ with sqlite3.connect(database_name) as conn:
     #habits = RedBook.Data.pull_habits_data_SQL(conn)
     #habits_progress = RedBook.Data.pull_habits_log_SQL(conn)
     
-    habits, progress = RedBook.Data.process_habits_SQL(conn)
-    a = RedBook.Tables.create_streak_tables(habits)
-    print(a)
+    #habits, progress = RedBook.Data.process_habits_SQL(conn)
+    #a = RedBook.Tables.create_streak_tables(habits)
+    #print(a)
 
     #print(pd.to_datetime(pl.index.get_level_values(0).astype(str), format='%Y') + \
     #         pd.to_timedelta((pl.index.get_level_values(1) * 7).astype(str) + ' days'))
