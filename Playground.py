@@ -6,7 +6,10 @@ from datetime import datetime
 
 database_name = 'Goals.db'
 
-
+def minimum_effective_date(goals, days_behind):
+    min_date = goals['Object'].apply(lambda x: min(x.effective_schedule_dates.values()))
+    lag = (pd.to_datetime(datetime.now().date()) - min_date).dt.days
+    return lag >= days_behind
 
 
 from datetime import datetime
@@ -17,7 +20,8 @@ with sqlite3.connect(database_name) as conn:
     #RedBook.Data.filter_increment_hiding(goals, expected_work_tables)
     #print(RedBook.Data.check_table_exists(conn, 'groups'))
     #tables 
-    #goals, work_log = RedBook.Data.process_goals_SQL(conn)
+    goals, work_log = RedBook.Data.process_goals_SQL(conn)
+    print(minimum_effective_date(goals, 11))
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
     #expected_work_table = RedBook.Tables.build_expected_work_table(goals)
     
@@ -26,7 +30,7 @@ with sqlite3.connect(database_name) as conn:
     #habits = RedBook.Data.pull_habits_data_SQL(conn)
     #habits_progress = RedBook.Data.pull_habits_log_SQL(conn)
     
-    habits, progress = RedBook.Data.process_habits_SQL(conn)
+    #habits, progress = RedBook.Data.process_habits_SQL(conn)
     #a = RedBook.Tables.create_streak_tables(habits)
     #print(a)
 
