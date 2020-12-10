@@ -59,3 +59,9 @@ class Habit:
         self.progress_log3 = create_progress_log3(self.progress_log, self.progress_log2, self.frequency)
         
         self.streak = (self.progress_log2.iloc[:-1][::-1] >= self.units).astype(int).cumprod().sum()
+        if len(self.progress_log2) == 0:
+            self.completion_percent = np.NaN
+        else:
+            self.completion_percent = (self.progress_log2 >= self.units).mean()
+        
+        
