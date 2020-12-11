@@ -11,6 +11,20 @@ def minimum_effective_date(goals, days_behind):
     lag = (pd.to_datetime(datetime.now().date()) - min_date).dt.days
     return lag >= days_behind
 
+def effective_date(goals, days_behind, schedule):
+    min_date = goals['Object'].apply(lambda x: x.effective_schedule_dates[schedule])
+    lag = (pd.to_datetime(datetime.now().date()) - min_date).dt.days
+    return lag >= days_behind
+
+#Percent Complete habit
+
+#Streak habit
+
+#Completed for this period
+
+#Make one example where it is < x % complete with it not being complete this week
+
+#Add a group select 
 
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:
@@ -22,13 +36,14 @@ with sqlite3.connect(database_name) as conn:
     #tables 
     goals, work_log = RedBook.Data.process_goals_SQL(conn)
     print(minimum_effective_date(goals, 11))
+    print(effective_date(goals, 11, 'Historical'))
+    
+    habits, progress = RedBook.Data.process_habits_SQL(conn)
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
     #expected_work_table = RedBook.Tables.build_expected_work_table(goals)
     
     #expected_progress_table, expected_work_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
-    
-    #habits = RedBook.Data.pull_habits_data_SQL(conn)
-    #habits_progress = RedBook.Data.pull_habits_log_SQL(conn)
+
     
     #habits, progress = RedBook.Data.process_habits_SQL(conn)
     #a = RedBook.Tables.create_streak_tables(habits)
