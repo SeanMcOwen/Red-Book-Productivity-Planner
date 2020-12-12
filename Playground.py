@@ -17,10 +17,17 @@ def effective_date(goals, days_behind, schedule):
     return lag >= days_behind
 
 #Percent Complete habit
+def habit_completion(habits, completion):
+    
+    return habits['Object'].apply(lambda x: x.completion_percent) <= completion
 
-#Streak habit
+
+def habit_streak(habits, streak):
+    return habits['Object'].apply(lambda x: x.streak) <= streak
 
 #Completed for this period
+
+#Pick frequency
 
 #Make one example where it is < x % complete with it not being complete this week
 
@@ -39,6 +46,12 @@ with sqlite3.connect(database_name) as conn:
     print(effective_date(goals, 11, 'Historical'))
     
     habits, progress = RedBook.Data.process_habits_SQL(conn)
+    
+    
+    print(habit_streak(habits, 2))
+    print(habit_completion(habits, .2))
+    
+    
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
     #expected_work_table = RedBook.Tables.build_expected_work_table(goals)
     
