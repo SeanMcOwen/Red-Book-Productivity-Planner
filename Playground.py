@@ -25,6 +25,12 @@ def habit_completion(habits, completion):
 def habit_streak(habits, streak):
     return habits['Object'].apply(lambda x: x.streak) <= streak
 
+
+def and_connector(data, rules):
+    out = [rule[0](data, *rule[1]) for rule in rules]
+    out = pd.concat(out, axis=1)
+    return out.all(axis=1)
+
 #Completed for this period
 
 #Pick frequency
@@ -51,7 +57,8 @@ with sqlite3.connect(database_name) as conn:
     print(habit_streak(habits, 2))
     print(habit_completion(habits, .2))
     
-    
+    and_connector(habits, [(habit_streak, [2]),
+                           (habit_completion, [.2])])
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
     #expected_work_table = RedBook.Tables.build_expected_work_table(goals)
     
