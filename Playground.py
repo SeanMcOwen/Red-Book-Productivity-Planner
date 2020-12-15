@@ -6,6 +6,8 @@ from datetime import datetime
 
 database_name = 'Goals.db'
 
+
+
 def minimum_effective_date(goals, days_behind):
     min_date = goals['Object'].apply(lambda x: min(x.effective_schedule_dates.values()))
     lag = (pd.to_datetime(datetime.now().date()) - min_date).dt.days
@@ -31,6 +33,40 @@ def and_connector(data, rules):
     out = pd.concat(out, axis=1)
     return out.all(axis=1)
 
+def or_connector(data, rules):
+    out = [rule[0](data, *rule[1]) for rule in rules]
+    out = pd.concat(out, axis=1)
+    return out.any(axis=1)
+
+def goal_increment_completed(goals, schedule):
+    schedules = goals['Object'].apply(lambda x: x.increments[schedule])
+    return ~pd.isnull(schedules)
+    
+def goal_increment_completed_today(goals, schedule):
+    schedules = goals['Object'].apply(lambda x: x.increments_today[schedule])
+    return ~pd.isnull(schedules)
+
+class GoalRule:
+    def __init__(self, rule_name, args):
+        if rule_name == "MED":
+            self.rule = minimum_effective_date
+        elif rule_name == "ED":
+            self.rule = effective_date
+        elif rule_name == "AND":
+            self.rule = and_connector
+        elif rule_name == "OR":
+            self.rule = or_connector
+        elif rule_name == "GIC":
+            self.rule = goal_increment_completed
+        elif rule_name == "GICT":
+            self.rule = goal_increment_completed_today
+        else:
+            assert False
+        self.args = args
+    
+    def apply_rule(self, goals):
+        return self.rule(goals, *self.args)
+
 #Completed for this period
 
 #Pick frequency
@@ -48,17 +84,14 @@ with sqlite3.connect(database_name) as conn:
     #print(RedBook.Data.check_table_exists(conn, 'groups'))
     #tables 
     goals, work_log = RedBook.Data.process_goals_SQL(conn)
-    print(minimum_effective_date(goals, 11))
-    print(effective_date(goals, 11, 'Historical'))
     
     habits, progress = RedBook.Data.process_habits_SQL(conn)
     
+    gl = GoalRule("MED", [20])
+    print(gl.apply_rule(goals))
     
-    print(habit_streak(habits, 2))
-    print(habit_completion(habits, .2))
-    
-    and_connector(habits, [(habit_streak, [2]),
-                           (habit_completion, [.2])])
+    #print(goal_increment_completed(goals, "Quarter"))
+    #print(goal_increment_completed_today(goals, "Quarter"))
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
     #expected_work_table = RedBook.Tables.build_expected_work_table(goals)
     
