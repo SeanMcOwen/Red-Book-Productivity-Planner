@@ -29,12 +29,12 @@ def habit_streak(habits, streak):
 
 
 def and_connector(data, rules):
-    out = [rule[0](data, *rule[1]) for rule in rules]
+    out = [rule.apply_rule(data) for rule in rules]
     out = pd.concat(out, axis=1)
     return out.all(axis=1)
 
 def or_connector(data, rules):
-    out = [rule[0](data, *rule[1]) for rule in rules]
+    out = [rule.apply_rule(data) for rule in rules]
     out = pd.concat(out, axis=1)
     return out.any(axis=1)
 
@@ -67,6 +67,8 @@ class GoalRule:
     def apply_rule(self, goals):
         return self.rule(goals, *self.args)
 
+
+
 #Completed for this period
 
 #Pick frequency
@@ -87,8 +89,15 @@ with sqlite3.connect(database_name) as conn:
     
     habits, progress = RedBook.Data.process_habits_SQL(conn)
     
-    gl = GoalRule("MED", [20])
+    gl = GoalRule("MED", [18])
     print(gl.apply_rule(goals))
+    
+    gl2 = GoalRule("GIC", ['Week'])
+    print(gl2.apply_rule(goals))
+    
+    gl3 = GoalRule("AND", [[gl, gl2]])
+    print(gl3.apply_rule(goals))
+    
     
     #print(goal_increment_completed(goals, "Quarter"))
     #print(goal_increment_completed_today(goals, "Quarter"))
