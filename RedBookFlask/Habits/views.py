@@ -44,20 +44,28 @@ def habits_page():
         
     if request.method == 'POST':
         habit_name  = request.values.get('habit')
-        habit_names = list(habits['Habit Name'].values)
-        habit_names.pop(habit_names.index(habit_name))
-        habit_names = [habit_name] + habit_names
-        
-        temp = habits.set_index('Habit Name').loc[habit_name]
-        habit_data = {}
-        habit_data = {"Habit Name": habit_name,
-                      "Frequency": temp['Frequency'],
-                      "Group": temp['Group'],
-                      "Start Date": temp['Start Date'],
-                      "Units": temp['Units'],
-                      "Streak": temp['Object'].streak}
-        
-        return render_template("Habits.html", habits=habit_names,habit_data=habit_data,template="Flask")
+        if habit_name is None:
+            habit_name  = request.values.get('habit2')
+            habit_names = list(habits['Habit Name'].values)
+            habit_names.pop(habit_names.index(habit_name))
+            print(habit_name)
+            return render_template("Habits.html", habits=habit_names,template="Flask")
+
+        else:
+            habit_names = list(habits['Habit Name'].values)
+            habit_names.pop(habit_names.index(habit_name))
+            habit_names = [habit_name] + habit_names
+            
+            temp = habits.set_index('Habit Name').loc[habit_name]
+            habit_data = {}
+            habit_data = {"Habit Name": habit_name,
+                          "Frequency": temp['Frequency'],
+                          "Group": temp['Group'],
+                          "Start Date": temp['Start Date'],
+                          "Units": temp['Units'],
+                          "Streak": temp['Object'].streak}
+            
+            return render_template("Habits.html", habits=habit_names,habit_data=habit_data,template="Flask")
 
         
     
