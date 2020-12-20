@@ -67,7 +67,21 @@ class GoalRule:
     def apply_rule(self, goals):
         return self.rule(goals, *self.args)
 
-
+class HabitRule:
+    def __init__(self, rule_name, args):
+        if rule_name == "HC":
+            self.rule = habit_completion
+        elif rule_name == "HS":
+            self.rule = habit_streak
+        elif rule_name == "AND":
+            self.rule = and_connector
+        elif rule_name == "OR":
+            self.rule = or_connector
+        else:
+            assert False
+        self.args = args
+    def apply_rule(self, habits):
+        return self.rule(habits, *self.args)
 
 #Completed for this period
 
@@ -89,14 +103,6 @@ with sqlite3.connect(database_name) as conn:
     
     habits, progress = RedBook.Data.process_habits_SQL(conn)
     
-    gl = GoalRule("MED", [18])
-    print(gl.apply_rule(goals))
-    
-    gl2 = GoalRule("GIC", ['Week'])
-    print(gl2.apply_rule(goals))
-    
-    gl3 = GoalRule("AND", [[gl, gl2]])
-    print(gl3.apply_rule(goals))
     
     
     #print(goal_increment_completed(goals, "Quarter"))
