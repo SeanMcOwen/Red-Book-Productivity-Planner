@@ -46,6 +46,9 @@ def goal_increment_completed_today(goals, schedule):
     schedules = goals['Object'].apply(lambda x: x.increments_today[schedule])
     return ~pd.isnull(schedules)
 
+def group_check(data, group):
+    return data['Group'] == group
+
 class GoalRule:
     def __init__(self, rule_name, args):
         if rule_name == "MED":
@@ -60,6 +63,8 @@ class GoalRule:
             self.rule = goal_increment_completed
         elif rule_name == "GICT":
             self.rule = goal_increment_completed_today
+        elif rule_name == "GRP":
+            self.rule = group_check
         else:
             assert False
         self.args = args
@@ -77,6 +82,8 @@ class HabitRule:
             self.rule = and_connector
         elif rule_name == "OR":
             self.rule = or_connector
+        elif rule_name == "GRP":
+            self.rule = group_check
         else:
             assert False
         self.args = args
@@ -103,7 +110,10 @@ with sqlite3.connect(database_name) as conn:
     
     habits, progress = RedBook.Data.process_habits_SQL(conn)
     
-    
+    r1 = HabitRule("HC", [.1])
+    r2 = HabitRule("GRP", ['Leisure'])
+    r3 = HabitRule("AND", [[r1, r2]])
+    print(r3.apply_rule(habits))
     
     #print(goal_increment_completed(goals, "Quarter"))
     #print(goal_increment_completed_today(goals, "Quarter"))
