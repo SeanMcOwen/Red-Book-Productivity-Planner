@@ -1,6 +1,38 @@
 {% extends "Base.html" %}
 
 {% block content %}
-<h3>Placeholder</h3>
+<div class="accordion" id="createGoal">
+  <div class="card">
+    <div class="card-header" id="headingMED">
+      <h2 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#MED" aria-expanded="true" aria-controls="MED">
+          Minimum Effective Date
+        </button>
+      </h2>
+    </div>
+
+    <div id="MED" class="collapse show" aria-labelledby="headingMED" data-parent="#createGoal">
+      <div class="card-body">
+      Create a rule which includes any goal that has a minimum effective date N days behind.
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingED">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#ED" aria-expanded="false" aria-controls="ED">
+          Effective Date
+        </button>
+      </h2>
+    </div>
+
+    <div id="ED" class="collapse" aria-labelledby="headingED" data-parent="#createGoal">
+      <div class="card-body">
+      Create a rule which includes any goal that has an effective date N days behind for a chosen schedule.
+      </div>
+    </div>
+  </div>
+
+</div>
 
 {% endblock %}
