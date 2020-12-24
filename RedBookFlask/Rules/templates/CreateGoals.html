@@ -1,6 +1,14 @@
 {% extends "Base.html" %}
 
 {% block content %}
+
+      {% for message in get_flashed_messages() %}
+<div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ message }}
+</div>
+{% endfor %}
+
 <div class="accordion" id="createGoal">
   <div class="card">
     <div class="card-header" id="headingMED">
@@ -14,6 +22,18 @@
     <div id="MED" class="collapse show" aria-labelledby="headingMED" data-parent="#createGoal">
       <div class="card-body">
       Create a rule which includes any goal that has a minimum effective date N days behind.
+      
+
+
+<form method="POST" action="Goals">
+<br>
+    {{ forms["MED"].csrf_token }}
+    {{ forms["MED"].hidden_tag() }}
+    {{ forms["MED"].rule_name.label }} {{ forms["MED"].rule_name() }}<br>
+    {{ forms["MED"].number_days.label }} {{ forms["MED"].number_days() }}
+    <br>
+    {{ forms["MED"].submit() }}
+</form>
       </div>
     </div>
   </div>

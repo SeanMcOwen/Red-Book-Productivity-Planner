@@ -2,6 +2,13 @@ from flask import Blueprint,render_template,redirect,url_for
 from bokeh.embed import server_document
 import sqlite3
 import RedBook
+from flask_wtf import FlaskForm
+from wtforms import (StringField, BooleanField,
+                     RadioField,SelectField,TextField,
+                     TextAreaField,SubmitField, FloatField, IntegerField)
+from wtforms.fields.html5 import DateField
+from wtforms.validators import DataRequired, NoneOf
+
 
 database_name = 'Goals.db'
 
@@ -25,7 +32,13 @@ def create_goal_rule_page():
         error = "<h3>Please create a goal first.</h3>"
         return render_template("ErrorPage.html", error=error,
                                    template="Flask")
+    forms = {"MED": GoalMEDForm()}
+    
+    return render_template("CreateGoals.html",forms=forms, template="Flask")
 
-    return render_template("CreateGoals.html", template="Flask")
 
-
+class GoalMEDForm(FlaskForm):    
+    rule_name = StringField('Rule Name', validators=[DataRequired()])
+    number_days = IntegerField('Number of Days', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+    
