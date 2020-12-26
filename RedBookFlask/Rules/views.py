@@ -8,7 +8,7 @@ from wtforms import (StringField, BooleanField,
                      TextAreaField,SubmitField, FloatField, IntegerField)
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, NoneOf
-
+import pandas as pd
 
 database_name = 'Goals.db'
 
@@ -18,7 +18,11 @@ rules_blueprint = Blueprint('rules',
                               template_folder='templates')
 
 
-
+def write_rule(rules):
+    with sqlite3.connect(database_name) as conn:
+        rules.to_sql("rules", conn, if_exists='append', index=False)
+        df = pd.read_sql("SELECT * FROM rules", conn)
+        df.to_csv("Rules.csv", index=False)
 
 
 @rules_blueprint.route("/CreateGoal",methods=['GET', 'POST'])
@@ -34,6 +38,15 @@ def create_goal_rule_page():
                                    template="Flask")
     forms = {"MED": GoalMEDForm()}
     
+    
+    if forms["MED"].validate_on_submit():
+        form = forms["MED"]
+        data = {"Rule Name": form.rule_name.data,
+            "N Days": form.number_days.data,
+            "Rule Type": "MED"
+            }
+        data = pd.Series(data).to_frame().T
+        write_rule(data)
     return render_template("CreateGoals.html",forms=forms, template="Flask")
 
 
