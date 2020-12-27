@@ -36,6 +36,10 @@ def create_goal_rule_page():
         error = "<h3>Please create a goal first.</h3>"
         return render_template("ErrorPage.html", error=error,
                                    template="Flask")
+    
+    
+        
+    
     forms = {"MED": GoalMEDForm()}
     
     
@@ -49,9 +53,16 @@ def create_goal_rule_page():
         write_rule(data)
     return render_template("CreateGoals.html",forms=forms, template="Flask")
 
-
-class GoalMEDForm(FlaskForm):    
-    rule_name = StringField('Rule Name', validators=[DataRequired()])
-    number_days = IntegerField('Number of Days', validators=[DataRequired()])
+class GoalForm(FlaskForm):
+    try:
+        with sqlite3.connect(database_name) as conn:
+            rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
+    except:
+        rule_names = []
+    rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
     submit = SubmitField('Submit')
+
+class GoalMEDForm(GoalForm):
+    number_days = IntegerField('Number of Days', validators=[DataRequired()])
+    
     

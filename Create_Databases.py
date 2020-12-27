@@ -33,4 +33,7 @@ def excel_to_db(conn):
         completed = pd.read_csv("Completed.csv")
         completed['Date'] = pd.to_datetime(completed['Date'])
         completed.to_sql("Completed", conn, if_exists='replace', index=False)
+    if "Rules.csv" in os.listdir("."):
+        rules = pd.read_csv("Rules.csv")
+        rules.to_sql("rules", conn, if_exists='replace', index=False)
         
