@@ -1,4 +1,4 @@
-from flask import Blueprint,render_template,redirect,url_for
+from flask import Blueprint,render_template,redirect,url_for, flash
 from bokeh.embed import server_document
 import sqlite3
 import RedBook
@@ -24,6 +24,14 @@ def write_rule(rules):
         df = pd.read_sql("SELECT * FROM rules", conn)
         df.to_csv("Rules.csv", index=False)
 
+def flash_errors(form):
+    """Flashes form errors"""
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ), 'error')
 
 @rules_blueprint.route("/CreateGoal",methods=['GET', 'POST'])
 def create_goal_rule_page():
@@ -51,6 +59,8 @@ def create_goal_rule_page():
             }
         data = pd.Series(data).to_frame().T
         write_rule(data)
+    else:
+        flash_errors(forms["MED"])
     return render_template("CreateGoals.html",forms=forms, template="Flask")
 
 class GoalForm(FlaskForm):
@@ -59,6 +69,7 @@ class GoalForm(FlaskForm):
             rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
     except:
         rule_names = []
+
     rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
     submit = SubmitField('Submit')
 
