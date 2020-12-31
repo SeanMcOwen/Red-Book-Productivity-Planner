@@ -49,6 +49,16 @@
     <div id="ED" class="collapse" aria-labelledby="headingED" data-parent="#createGoal">
       <div class="card-body">
       Create a rule which includes any goal that has an effective date N days behind for a chosen schedule.
+      <form method="POST" action="CreateGoal">
+<br>
+    {{ forms["ED"].csrf_token }}
+    {{ forms["ED"].hidden_tag() }}
+    {{ forms["ED"].rule_name.label }} {{ forms["ED"].rule_name() }}<br>
+    {{ forms["ED"].number_days.label }} {{ forms["ED"].number_days() }}<br>
+    {{ forms["ED"].schedule.label }} {{ forms["ED"].schedule() }}
+    <br>
+    {{ forms["ED"].submit() }}
+</form>
       </div>
     </div>
   </div>

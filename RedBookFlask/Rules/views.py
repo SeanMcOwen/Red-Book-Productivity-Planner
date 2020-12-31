@@ -46,9 +46,10 @@ def create_goal_rule_page():
                                    template="Flask")
     
     
-        
     
-    forms = {"MED": GoalMEDForm()}
+    forms = {"MED": GoalMEDForm(),
+             "ED": GoalEDForm()}
+    
     
     
     if forms["MED"].validate_on_submit():
@@ -61,7 +62,25 @@ def create_goal_rule_page():
         write_rule(data)
     else:
         flash_errors(forms["MED"])
+        
+    if forms["ED"].validate_on_submit():
+        form = forms["ED"]
+        data = {"Rule Name": form.rule_name.data,
+            "N Days": form.number_days.data,
+            "Rule Type": "ED",
+            "Schedule": form.schedule.data
+            }
+        data = pd.Series(data).to_frame().T
+        write_rule(data)
+    else:
+        flash_errors(forms["ED"])
+        
     return render_template("CreateGoals.html",forms=forms, template="Flask")
+
+def update_choices():
+    with sqlite3.connect(database_name) as conn:
+        rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
+        return rule_names
 
 class GoalForm(FlaskForm):
     try:
@@ -75,5 +94,10 @@ class GoalForm(FlaskForm):
 
 class GoalMEDForm(GoalForm):
     number_days = IntegerField('Number of Days', validators=[DataRequired()])
+    
+class GoalEDForm(GoalForm):
+    number_days = IntegerField('Number of Days', validators=[DataRequired()])    
+    schedule = SelectField('Schedule', choices=[(x, x) for x in ['Historical', 'Today', 'Week', 'Month', 'Quarter', 'Year']])
+    
     
     
