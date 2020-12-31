@@ -9,6 +9,7 @@ from wtforms import (StringField, BooleanField,
 from wtforms.fields.html5 import DateField
 from wtforms.validators import DataRequired, NoneOf
 import pandas as pd
+import numpy as np
 
 database_name = 'Goals.db'
 
@@ -52,18 +53,19 @@ def create_goal_rule_page():
     
     
     
-    if forms["MED"].validate_on_submit():
+    if forms["MED"].validate_on_submit() and forms["MED"].submit.data:
         form = forms["MED"]
         data = {"Rule Name": form.rule_name.data,
             "N Days": form.number_days.data,
-            "Rule Type": "MED"
+            "Rule Type": "MED",
+            "Schedule": np.NaN
             }
         data = pd.Series(data).to_frame().T
         write_rule(data)
     else:
         flash_errors(forms["MED"])
         
-    if forms["ED"].validate_on_submit():
+    if forms["ED"].validate_on_submit() and forms["ED"].submit.data:
         form = forms["ED"]
         data = {"Rule Name": form.rule_name.data,
             "N Days": form.number_days.data,
@@ -92,7 +94,7 @@ class GoalForm(FlaskForm):
     rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
     submit = SubmitField('Submit')
 
-class GoalMEDForm(GoalForm):
+class GoalMEDForm(FlaskForm):
     number_days = IntegerField('Number of Days', validators=[DataRequired()])
     
 class GoalEDForm(GoalForm):
