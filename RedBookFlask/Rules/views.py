@@ -52,30 +52,31 @@ def create_goal_rule_page():
              "ED": GoalEDForm()}
     
     
+    if forms["MED"].submit1.data:
+        if forms["MED"].validate_on_submit():
+            form = forms["MED"]
+            data = {"Rule Name": form.rule_name.data,
+                "N Days": form.number_days.data,
+                "Rule Type": "MED",
+                "Schedule": np.NaN
+                }
+            data = pd.Series(data).to_frame().T
+            write_rule(data)
+        else:
+            flash_errors(forms["MED"])
     
-    if forms["MED"].validate_on_submit() and forms["MED"].submit.data:
-        form = forms["MED"]
-        data = {"Rule Name": form.rule_name.data,
-            "N Days": form.number_days.data,
-            "Rule Type": "MED",
-            "Schedule": np.NaN
-            }
-        data = pd.Series(data).to_frame().T
-        write_rule(data)
-    else:
-        flash_errors(forms["MED"])
-        
-    if forms["ED"].validate_on_submit() and forms["ED"].submit.data:
-        form = forms["ED"]
-        data = {"Rule Name": form.rule_name.data,
-            "N Days": form.number_days.data,
-            "Rule Type": "ED",
-            "Schedule": form.schedule.data
-            }
-        data = pd.Series(data).to_frame().T
-        write_rule(data)
-    else:
-        flash_errors(forms["ED"])
+    if forms["ED"].submit2.data:
+        if forms["ED"].validate_on_submit():
+            form = forms["ED"]
+            data = {"Rule Name": form.rule_name.data,
+                "N Days": form.number_days.data,
+                "Rule Type": "ED",
+                "Schedule": form.schedule.data
+                }
+            data = pd.Series(data).to_frame().T
+            write_rule(data)
+        else:
+            flash_errors(forms["ED"])
         
     return render_template("CreateGoals.html",forms=forms, template="Flask")
 
@@ -84,20 +85,27 @@ def update_choices():
         rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
         return rule_names
 
-class GoalForm(FlaskForm):
+    
+
+class GoalMEDForm(FlaskForm):
     try:
         with sqlite3.connect(database_name) as conn:
             rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
     except:
         rule_names = []
-
-    rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
-    submit = SubmitField('Submit')
-
-class GoalMEDForm(FlaskForm):
     number_days = IntegerField('Number of Days', validators=[DataRequired()])
+    rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
+    submit1 = SubmitField('Submit')
     
-class GoalEDForm(GoalForm):
+class GoalEDForm(FlaskForm):
+    try:
+        with sqlite3.connect(database_name) as conn:
+            rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
+    except:
+        rule_names = []
+    number_days = IntegerField('Number of Days', validators=[DataRequired()])
+    rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
+    submit2 = SubmitField('Submit')
     number_days = IntegerField('Number of Days', validators=[DataRequired()])    
     schedule = SelectField('Schedule', choices=[(x, x) for x in ['Historical', 'Today', 'Week', 'Month', 'Quarter', 'Year']])
     
