@@ -98,6 +98,12 @@ class HabitRule:
 
 #Add a group select 
 
+def find_arguments(rule):
+    if rule['Rule Type'] == "MED":
+        return list(rule[['N Days']].values)
+    elif rule['Rule Type'] == "ED":
+        return list(rule[['N Days', 'Schedule']].values)
+
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:
     #existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
@@ -106,15 +112,20 @@ with sqlite3.connect(database_name) as conn:
     #RedBook.Data.filter_increment_hiding(goals, expected_work_tables)
     #print(RedBook.Data.check_table_exists(conn, 'groups'))
     #tables 
-    goals, work_log = RedBook.Data.process_goals_SQL(conn)
     
+    
+    goals, work_log = RedBook.Data.process_goals_SQL(conn)
+    goal_rules = pd.read_sql("SELECT * FROM rules", conn)
+    goal_rules['Object'] = goal_rules.apply(lambda rule: GoalRule(rule['Rule Type'], find_arguments(rule)), axis=1)
+    
+    """    
     habits, progress = RedBook.Data.process_habits_SQL(conn)
     
     r1 = HabitRule("HC", [.1])
     r2 = HabitRule("GRP", ['Leisure'])
     r3 = HabitRule("AND", [[r1, r2]])
     print(r3.apply_rule(habits))
-    
+    """
     #print(goal_increment_completed(goals, "Quarter"))
     #print(goal_increment_completed_today(goals, "Quarter"))
     #expected_progress_table = RedBook.Tables.build_expected_progress_table(goals)
