@@ -103,6 +103,12 @@ def find_arguments(rule):
         return list(rule[['N Days']].values)
     elif rule['Rule Type'] == "ED":
         return list(rule[['N Days', 'Schedule']].values)
+    elif rule['Rule Type'] == "GIC":
+        return list(rule[['Schedule']].values)
+    elif rule['Rule Type'] == "GICT":
+        return list(rule[['Schedule']].values)
+    else:
+        assert False
 
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:

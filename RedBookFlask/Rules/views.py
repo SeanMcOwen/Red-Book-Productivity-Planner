@@ -50,7 +50,8 @@ def create_goal_rule_page():
     
     forms = {"MED": GoalMEDForm(),
              "ED": GoalEDForm(),
-             "GICT":GoalIncrementCompletedToday()}
+             "GICT":GoalIncrementCompletedToday(),
+             "GIC": GoalIncrementCompleted()}
     
     
     if forms["MED"].submit1.data:
@@ -91,7 +92,20 @@ def create_goal_rule_page():
             write_rule(data)
         else:
             flash_errors(forms["GICT"])
-        
+            
+    if forms["GIC"].submit4.data:
+        if forms["GIC"].validate_on_submit():
+            form = forms["GIC"]
+            data = {"Rule Name": form.rule_name.data,
+                "N Days": np.NaN,
+                "Rule Type": "GIC",
+                "Schedule": form.schedule.data
+                }
+            data = pd.Series(data).to_frame().T
+            write_rule(data)
+        else:
+            flash_errors(forms["GIC"])
+            
     return render_template("CreateGoals.html",forms=forms, template="Flask")
 
 def update_choices():
@@ -132,3 +146,18 @@ class GoalIncrementCompletedToday(FlaskForm):
     schedule = SelectField('Schedule', choices=[(x, x) for x in ['Historical', 'Today', 'Week', 'Month', 'Quarter', 'Year']])
     rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
     submit3 = SubmitField('Submit')
+
+
+class GoalIncrementCompleted(FlaskForm):
+    try:
+        with sqlite3.connect(database_name) as conn:
+            rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
+    except:
+        rule_names = []
+    schedule = SelectField('Schedule', choices=[(x, x) for x in ['Historical', 'Today', 'Week', 'Month', 'Quarter', 'Year']])
+    rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
+    submit4 = SubmitField('Submit')
+
+
+
+    
