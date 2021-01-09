@@ -62,7 +62,33 @@
       </div>
     </div>
   </div>
+  <div class="card">
+    <div class="card-header" id="headingGICT">
+      <h2 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#GICT" aria-expanded="true" aria-controls="GICT">
+          Goal Increment Completed (Today)
+        </button>
+      </h2>
+    </div>
 
+    <div id="GICT" class="collapse" aria-labelledby="headingGICT" data-parent="#createGoal">
+      <div class="card-body">
+      Create a rule which includes any goal that has not completed the goal increment (based on where it should be today).
+      
+
+
+<form method="POST" action="CreateGoal">
+<br>
+    {{ forms["GICT"].csrf_token }}
+    {{ forms["GICT"].hidden_tag() }}
+    {{ forms["GICT"].rule_name.label }} {{ forms["GICT"].rule_name() }}<br>
+    {{ forms["GICT"].schedule.label }} {{ forms["GICT"].schedule() }}<br>
+    <br>
+    {{ forms["GICT"].submit3() }}
+</form>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}
