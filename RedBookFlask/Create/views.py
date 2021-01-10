@@ -268,6 +268,9 @@ def update_progress_page():
                                    template="Flask")
     with sqlite3.connect(database_name) as conn:
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
+        extra = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+        goals_l = list(goals['Progress Name'].unique())
+        goals_l = goals_l + [x for x in extra if x not in goals_l]
     if request.method == 'POST':
         goal_name  = request.values.get('goal')
         update_val  = request.values.get('update_val')
@@ -286,6 +289,9 @@ def update_progress_page():
             
             goals1, work_log1 = RedBook.Data.process_goals_SQL(conn)
             RedBook.Data.check_goal_completion(conn, goals1)
+            
+            extra = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+            goals_l = goals_l + [x for x in extra if x not in goals_l]
     
             return render_template("Create/Update Progress.html", goals=goals_l, work_log=work_log, goal=goal_name, template="Flask")
         else:
@@ -322,8 +328,12 @@ def update_progress_page():
             
             goals1, work_log1 = RedBook.Data.process_goals_SQL(conn)
             RedBook.Data.check_goal_completion(conn, goals1)
+            
+            extra = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+            goals_l = goals_l + [x for x in extra if x not in goals_l]
+            
             return render_template("Create/Update Progress.html", goals=goals_l, work_log=work_log, goal=goal_name, template="Flask")
-    return render_template("Create/Update Progress.html", goals=list(goals['Progress Name'].unique()), template="Flask")
+    return render_template("Create/Update Progress.html", goals=goals_l, template="Flask")
 
 @create_blueprint.route("/Update Tasks",methods=['GET', 'POST'])
 def update_tasks_page():
