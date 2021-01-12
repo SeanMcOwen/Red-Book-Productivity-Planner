@@ -106,7 +106,7 @@ def find_arguments(rule):
     elif rule['Rule Type'] == "GIC":
         return list(rule[['Schedule']].values)
     elif rule['Rule Type'] == "GICT":
-        return list(rule[['Schedule']].values)
+        return list(rule[['Schedule']].values)        
     else:
         assert False
 
@@ -122,7 +122,13 @@ with sqlite3.connect(database_name) as conn:
     
     goals, work_log = RedBook.Data.process_goals_SQL(conn)
     goal_rules = pd.read_sql("SELECT * FROM rules", conn)
-    goal_rules['Object'] = goal_rules.apply(lambda rule: GoalRule(rule['Rule Type'], find_arguments(rule)), axis=1)
+    goal_rules['Object'] = goal_rules[~goal_rules['Rule Type'].isin(['AND', 'OR'])].apply(lambda rule: GoalRule(rule['Rule Type'], find_arguments(rule)), axis=1)
+    goal_rules = goal_rules.set_index('Rule Name')
+    for rule_name in goal_rules.index:
+        if goal_rules.loc[rule_name, 'Rule Type'] in ['AND', 'OR']:
+            args = list(goal_rules.loc[goal_rules.loc[rule_name][['Rule 1', 'Rule 2']].values]['Object'].values)
+            rtype = goal_rules.loc[rule_name, 'Rule Type']
+            goal_rules.loc[rule_name, 'Object'] = GoalRule(rtype, args)
     
     """    
     habits, progress = RedBook.Data.process_habits_SQL(conn)

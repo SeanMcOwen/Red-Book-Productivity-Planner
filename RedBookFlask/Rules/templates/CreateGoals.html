@@ -119,6 +119,37 @@
     </div>
   </div>
   
+      <div class="card">
+    <div class="card-header" id="headingANDOR">
+      <h2 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#ANDOR" aria-expanded="true" aria-controls="ANDOR">
+          And/Or
+        </button>
+      </h2>
+    </div>
+
+    <div id="ANDOR" class="collapse" aria-labelledby="headingANDOR" data-parent="#createGoal">
+      <div class="card-body">
+      Create a rule which includes any goal that either satisfies rule 1 and rule 2, or which satisfies rule 1 or rule 2.
+      
+
+
+<form method="POST" action="CreateGoal">
+<br>
+    {{ forms["ANDOR"].csrf_token }}
+    {{ forms["ANDOR"].hidden_tag() }}
+    {{ forms["ANDOR"].rule_name.label }} {{ forms["ANDOR"].rule_name() }}<br>
+    {{ forms["ANDOR"].rule1.label }} {{ forms["ANDOR"].rule1() }}<br>
+    {{ forms["ANDOR"].and_or.label }} {{ forms["ANDOR"].and_or() }}<br>
+    {{ forms["ANDOR"].rule2.label }} {{ forms["ANDOR"].rule2() }}<br>
+    <br>
+    {{ forms["ANDOR"].submit5() }}
+</form>
+      </div>
+    </div>
+  </div>
+  
+  
 </div>
 
 {% endblock %}
