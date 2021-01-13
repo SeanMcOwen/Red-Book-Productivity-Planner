@@ -18,6 +18,12 @@ def effective_date(goals, days_behind, schedule):
     lag = (pd.to_datetime(datetime.now().date()) - min_date).dt.days
     return lag >= days_behind
 
+def effective_date_top_n(goals, top_n, schedule):
+    ed = goals['Object'].apply(lambda x: x.effective_schedule_dates[schedule])
+    top_n = ed.sort_values().head(top_n).index
+    return pd.Series(goals.index.isin(top_n), index=goals.index)
+    
+
 #Percent Complete habit
 def habit_completion(habits, completion):
     
