@@ -52,7 +52,8 @@ def create_goal_rule_page():
              "ED": GoalEDForm(),
              "GICT":GoalIncrementCompletedToday(),
              "GIC": GoalIncrementCompleted(),
-             "ANDOR": GoalAndOrForm()}
+             "ANDOR": GoalAndOrForm(),
+             "GRP": GroupForm()}
     
     
     if forms["MED"].submit1.data:
@@ -63,7 +64,8 @@ def create_goal_rule_page():
                 "Rule Type": "MED",
                 "Schedule": np.NaN,
                 "Rule 1": np.NaN,
-                "Rule 2": np.NaN
+                "Rule 2": np.NaN,
+                "Group": np.NaN
                 }
             data = pd.Series(data).to_frame().T
             write_rule(data)
@@ -78,7 +80,8 @@ def create_goal_rule_page():
                 "Rule Type": "ED",
                 "Schedule": form.schedule.data,
                 "Rule 1": np.NaN,
-                "Rule 2": np.NaN
+                "Rule 2": np.NaN,
+                "Group": np.NaN
                 }
             data = pd.Series(data).to_frame().T
             write_rule(data)
@@ -93,7 +96,8 @@ def create_goal_rule_page():
                 "Rule Type": "GICT",
                 "Schedule": form.schedule.data,
                 "Rule 1": np.NaN,
-                "Rule 2": np.NaN
+                "Rule 2": np.NaN,
+                "Group": np.NaN
                 }
             data = pd.Series(data).to_frame().T
             write_rule(data)
@@ -108,7 +112,8 @@ def create_goal_rule_page():
                 "Rule Type": "GIC",
                 "Schedule": form.schedule.data,
                 "Rule 1": np.NaN,
-                "Rule 2": np.NaN
+                "Rule 2": np.NaN,
+                "Group": np.NaN
                 }
             data = pd.Series(data).to_frame().T
             write_rule(data)
@@ -123,12 +128,29 @@ def create_goal_rule_page():
                 "Rule Type": form.and_or.data,
                 "Schedule": np.NaN,
                 "Rule 1": form.rule1.data,
-                "Rule 2": form.rule2.data
+                "Rule 2": form.rule2.data,
+                "Group": np.NaN
                 }
             data = pd.Series(data).to_frame().T
             write_rule(data)
         else:
-            flash_errors(forms["GIC"])
+            flash_errors(forms["ANDOR"])
+    
+    if forms["GRP"].submit6.data:
+        if forms["GRP"].validate_on_submit():
+            form = forms["GRP"]
+            data = {"Rule Name": form.rule_name.data,
+                "N Days": np.NaN,
+                "Rule Type": np.NaN,
+                "Schedule": np.NaN,
+                "Rule 1": np.NaN,
+                "Rule 2": np.NaN,
+                "Group": form.group.data
+                }
+            data = pd.Series(data).to_frame().T
+            write_rule(data)
+        else:
+            flash_errors(forms["GRP"])
     
     return render_template("CreateGoals.html",forms=forms, template="Flask")
 
@@ -182,6 +204,8 @@ class GoalIncrementCompleted(FlaskForm):
     rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
     submit4 = SubmitField('Submit')
 
+
+
 class GoalAndOrForm(FlaskForm):
     try:
         with sqlite3.connect(database_name) as conn:
@@ -195,4 +219,15 @@ class GoalAndOrForm(FlaskForm):
     and_or = SelectField('And/Or', choices=[(x, x) for x in ["AND", "OR"]])
     submit5 = SubmitField('Submit')
 
+class GroupForm(FlaskForm):
+    try:
+        with sqlite3.connect(database_name) as conn:
+            rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
+    except:
+        rule_names = []
+        
+    group_names = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
+    group = SelectField('Group', choices=[(x, x) for x in group_names])
+    rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
+    submit6 = SubmitField('Submit')
     

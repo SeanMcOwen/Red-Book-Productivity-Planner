@@ -112,12 +112,15 @@ def find_arguments(rule):
     elif rule['Rule Type'] == "GIC":
         return list(rule[['Schedule']].values)
     elif rule['Rule Type'] == "GICT":
-        return list(rule[['Schedule']].values)        
+        return list(rule[['Schedule']].values)
+    elif rule['Rule Type'] == "GRP":
+        return list(rule[['Group']].values)
     else:
         assert False
 
 from datetime import datetime
 with sqlite3.connect(database_name) as conn:
+    
     #existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
     #goals, work_log = RedBook.Data.process_goals_SQL(conn)
     #expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)

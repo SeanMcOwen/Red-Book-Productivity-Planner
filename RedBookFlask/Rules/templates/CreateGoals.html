@@ -150,6 +150,36 @@
   </div>
   
   
+  
+        <div class="card">
+    <div class="card-header" id="headingGRP">
+      <h2 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#GRP" aria-expanded="true" aria-controls="GRP">
+          Group
+        </button>
+      </h2>
+    </div>
+
+    <div id="GRP" class="collapse" aria-labelledby="headingGRP" data-parent="#createGoal">
+      <div class="card-body">
+      Create a rule which includes any goal that is in the chosen group.
+      
+
+
+<form method="POST" action="CreateGoal">
+<br>
+    {{ forms["GRP"].csrf_token }}
+    {{ forms["GRP"].hidden_tag() }}
+    {{ forms["GRP"].rule_name.label }} {{ forms["GRP"].rule_name() }}<br>
+{{ forms["GRP"].group.label }} {{ forms["GRP"].group() }}<br>
+    <br>
+    {{ forms["GRP"].submit6() }}
+</form>
+      </div>
+    </div>
+  </div>
+  
+  
 </div>
 
 {% endblock %}
