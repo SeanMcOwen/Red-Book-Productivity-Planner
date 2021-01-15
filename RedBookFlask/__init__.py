@@ -42,11 +42,11 @@ app.register_blueprint(rules_blueprint,url_prefix="/Rules")
 
 
 app.config['SECRET_KEY'] = 'TEST'
-
+app.config['DB_NAME'] = "Goals.db"
 
 @app.route("/",methods=['GET', 'POST'])
 def main():
-    with sqlite3.connect(database_name) as conn:
+    with sqlite3.connect(app.config['DB_NAME']) as conn:
         try:
             goals, work_log = RedBook.Data.process_goals_SQL(conn)
             expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
