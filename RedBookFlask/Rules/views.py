@@ -225,8 +225,10 @@ class GroupForm(FlaskForm):
             rule_names = list(pd.read_sql("SELECT * FROM rules", con=conn)['Rule Name'].values)
     except:
         rule_names = []
-        
-    group_names = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
+    try:
+        group_names = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
+    except:
+        group_names = []
     group = SelectField('Group', choices=[(x, x) for x in group_names])
     rule_name = StringField('Rule Name', validators=[DataRequired(), NoneOf(rule_names)])
     submit6 = SubmitField('Submit')

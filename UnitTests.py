@@ -28,7 +28,7 @@ class BasicTests(unittest.TestCase):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['DEBUG'] = False
-        self.config['DB_NAME'] = "Test.db"
+        app.config['DB_NAME'] = "Test.db"
         self.app = app.test_client()
 
  
