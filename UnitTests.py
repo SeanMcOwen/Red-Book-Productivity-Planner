@@ -30,7 +30,9 @@ class BasicTests(unittest.TestCase):
         app.config['DEBUG'] = False
         app.config['DB_NAME'] = "Test.db"
         self.app = app.test_client()
-
+        
+        
+    #Add in a way to copy over and save the excel files so they aren't overwritten
  
     # executed after each test
     def tearDown(self):
@@ -39,6 +41,12 @@ class BasicTests(unittest.TestCase):
     def test_main_page(self):
         response = self.app.get('/', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
+        
+        response = self.app.post(
+          '/Create/Group',
+          data = dict(group_name="Projects"),
+          follow_redirects=True
+          )
         
         
 if __name__ == "__main__":
