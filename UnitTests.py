@@ -28,7 +28,6 @@ class BasicTests(unittest.TestCase):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['DEBUG'] = False
-        app.config['DB_NAME'] = "Test.db"
         self.app = app.test_client()
         
         for csv in ['Completed.csv',
@@ -43,11 +42,24 @@ class BasicTests(unittest.TestCase):
                 os.rename(csv, "_"+csv)
         assert len([x for x in os.listdir(".") if ".csv" in x and x[0] != "_"]) == 0
         
-        
+        if "Goals.db" in os.listdir("."):
+            os.rename("Goals.db" , "_Goals.db")
     #Add in a way to copy over and save the excel files so they aren't overwritten
  
     # executed after each test
     def tearDown(self):
+        for csv in ['Completed.csv',
+         'Goals.csv',
+         'Group.csv',
+         'Habits Progress.csv',
+         'Habits.csv',
+         'progress_params.csv',
+         'project_log.csv',
+         'Tasks.csv']:
+            if csv in os.listdir("."):
+                os.remove(csv)
+        if "Goals.db" in os.listdir("."):
+            os.remove("Goals.db")
         for csv in ['_Completed.csv',
          '_Goals.csv',
          '_Group.csv',
@@ -58,9 +70,17 @@ class BasicTests(unittest.TestCase):
          '_Tasks.csv']:
             if csv in os.listdir("."):
                 os.rename(csv, csv[1:])
+        if "_Goals.db" in os.listdir("."):
+            os.rename("_Goals.db" , "Goals.db")
     
     def test_main_page(self):
         response = self.app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        
+        
+    
+    def test_group_create_page(self):
+        response = self.app.get('/Create/Group', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         
         response = self.app.post(
@@ -68,7 +88,7 @@ class BasicTests(unittest.TestCase):
           data = dict(group_name="Projects"),
           follow_redirects=True
           )
-        
+        self.assertEqual(response.status_code, 200)
         
         
         
