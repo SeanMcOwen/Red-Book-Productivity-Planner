@@ -15,6 +15,7 @@ from bokeh.server.server import Server
 
 from RedBookFlask import app
 
+database_name = 'Goals.db'
 
 
 class BasicTests(unittest.TestCase):
@@ -27,7 +28,7 @@ class BasicTests(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
-        app.config['DEBUG'] = False
+        app.config['DEBUG'] = True
         self.app = app.test_client()
         
         for csv in ['Completed.csv',
@@ -89,6 +90,21 @@ class BasicTests(unittest.TestCase):
           follow_redirects=True
           )
         self.assertEqual(response.status_code, 200)
+        
+        
+        response = self.app.post(
+          '/Create/Group',
+          data = dict(group_name="Reading"),
+          follow_redirects=True
+          )
+        self.assertEqual(response.status_code, 200)
+        
+        
+        with sqlite3.connect(database_name) as conn:
+            groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
+        self.assertEqual(groups, ["Projects", "Reading"])
+        
+
         
         
         

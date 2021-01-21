@@ -17,7 +17,6 @@ from flask import current_app
 
 
 database_name = 'Goals.db'
-#database_name = current_app.config["DB_NAME"]
 
 create_blueprint = Blueprint('create',
                               __name__,
