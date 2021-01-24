@@ -8,6 +8,7 @@ import RedBook, RedBookBokeh
 
 from threading import Thread
 from tornado.ioloop import IOLoop
+import numpy as np
 from bokeh.embed import server_document
 
 from bokeh.server.server import Server
@@ -78,9 +79,12 @@ class BasicTests(unittest.TestCase):
         response = self.app.get('/', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         
-        
     
-    def test_group_create_page(self):
+    def test_case1(self):
+        response = self.app.get('/Create/Goals', follow_redirects=True)        
+        self.assertIn("Please create a group before creating goals.", str(response.data))
+        
+        
         response = self.app.get('/Create/Group', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         
@@ -104,7 +108,43 @@ class BasicTests(unittest.TestCase):
             groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
         self.assertEqual(groups, ["Projects", "Reading"])
         
+        
+        response = self.app.get('/Create/Goals', follow_redirects=True)        
+        self.assertIn("Please create a progress object before creating goals.", str(response.data))
+        
+        
+        response = self.app.get('Create/Progress', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.post(
+          '/Create/Progress',
+          data = dict(progress_name="Read Book 1",
+                      progress_type="Progress",
+                      units=1,
+                      starting_value=0),
+          follow_redirects=True
+          )
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.post(
+          '/Create/Progress',
+          data = dict(progress_name="Read Book 2",
+                      progress_type="Progress",
+                      units=1,
+                      starting_value=20),
+          follow_redirects=True
+          )
+        self.assertEqual(response.status_code, 200)
+        
+        progress_values = pd.read_sql("SELECT * FROM progress", conn)[["Goal Name", "Value"]].values
+        expected = np.array([['Read Book 1',0.0], ['Read Book 2', 20.0]], dtype=object)
+        self.assertEqual((progress_values == expected).all().all(), True)
 
+        print(pd.read_sql("SELECT * FROM progress_params", conn))
+        
+        
+    
+        
         
         
         
