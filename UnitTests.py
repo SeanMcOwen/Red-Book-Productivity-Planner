@@ -12,7 +12,7 @@ import numpy as np
 from bokeh.embed import server_document
 
 from bokeh.server.server import Server
-
+from bs4 import BeautifulSoup
 
 from RedBookFlask import app
 
@@ -75,12 +75,11 @@ class BasicTests(unittest.TestCase):
         if "_Goals.db" in os.listdir("."):
             os.rename("_Goals.db" , "Goals.db")
     
-    def test_main_page(self):
+
+    def test_case1(self):
         response = self.app.get('/', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         
-    
-    def test_case1(self):
         response = self.app.get('/Create/Goals', follow_redirects=True)        
         self.assertIn("Please create a group before creating goals.", str(response.data))
         
@@ -140,8 +139,15 @@ class BasicTests(unittest.TestCase):
         expected = np.array([['Read Book 1',0.0], ['Read Book 2', 20.0]], dtype=object)
         self.assertEqual((progress_values == expected).all().all(), True)
 
-        print(pd.read_sql("SELECT * FROM progress_params", conn))
+        progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
+        expected = np.array([['Read Book 1', 1.0, 'Progress'],
+                             ['Read Book 2', 1.0,'Progress']], dtype=object)
+        self.assertEqual((progress_values == expected).all().all(), True)
         
+        response = self.app.get('/Create/Goals', follow_redirects=True)     
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.data, 'html.parser')
+        print(soup)
         
     
         
