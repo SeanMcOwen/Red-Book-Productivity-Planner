@@ -466,6 +466,60 @@ def habits_page():
     #form.update_choices()
     return render_template("Create/Habits.html", form=form, template="Flask")
 
+
+@create_blueprint.route("/ViewProgress",methods=['GET', 'POST'])
+def view_progress_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'progress'):
+            error = "<h3>Please create a progress object.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
+        progress = pd.read_sql("SELECT * FROM progress_params", conn)
+        goals_l = list(progress['Goal Name'].values)
+        
+    if request.method == 'POST':
+        habit_name  = request.values.get('habit')
+        if habit_name is None:
+            habit_name  = request.values.get('habit2')
+            habit_names = list(habits['Habit Name'].values)
+            habit_names.pop(habit_names.index(habit_name))
+            conn.cursor().execute("UPDATE habits SET Completed = 'Completed' WHERE `Habit Name` = '{}'".format(habit_name))
+            conn.commit()
+            
+            df = pd.read_sql("SELECT * FROM habits", conn)
+            df['Start Date'] = pd.to_datetime(df['Start Date'])
+            df.to_csv("Habits.csv")
+            
+            completed = pd.DataFrame([[habit_name, "Habit", pd.to_datetime(datetime.today().date())]],
+                                 columns = ['Name', 'Type', 'Date'])
+            completed.to_sql("Completed", conn, if_exists='append', index=False)
+            df = pd.read_sql("SELECT * FROM Completed", conn)
+            df['Date'] = pd.to_datetime(df['Date'])
+            df.to_csv("Completed.csv", index=False)
+
+            return render_template("Habits.html", habits=habit_names,template="Flask")
+
+        else:
+            habit_names = list(habits['Habit Name'].values)
+            habit_names.pop(habit_names.index(habit_name))
+            habit_names = [habit_name] + habit_names
+            
+            temp = habits.set_index('Habit Name').loc[habit_name]
+            habit_data = {}
+            habit_data = {"Habit Name": habit_name,
+                          "Frequency": temp['Frequency'],
+                          "Group": temp['Group'],
+                          "Start Date": temp['Start Date'],
+                          "Units": temp['Units'],
+                          "Streak": temp['Object'].streak}
+            
+            return render_template("Habits.html", habits=habit_names,habit_data=habit_data,template="Flask")
+
+        
+    
+    return render_template("Create/Update Progress.html", goals=goals_l, template="Flask")
+
+
 def update_choices():
     with sqlite3.connect(database_name) as conn:
         existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
@@ -548,3 +602,7 @@ class ProgressForm(FlaskForm):
     units = FloatField("Units", default=1)
     starting_value = FloatField("Starting Value", default=0)
     submit = SubmitField('Create Progress')
+    
+    
+    
+    
