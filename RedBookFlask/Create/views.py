@@ -478,46 +478,19 @@ def view_progress_page():
         goals_l = list(progress['Goal Name'].values)
         
     if request.method == 'POST':
-        habit_name  = request.values.get('habit')
-        if habit_name is None:
-            habit_name  = request.values.get('habit2')
-            habit_names = list(habits['Habit Name'].values)
-            habit_names.pop(habit_names.index(habit_name))
-            conn.cursor().execute("UPDATE habits SET Completed = 'Completed' WHERE `Habit Name` = '{}'".format(habit_name))
-            conn.commit()
-            
-            df = pd.read_sql("SELECT * FROM habits", conn)
-            df['Start Date'] = pd.to_datetime(df['Start Date'])
-            df.to_csv("Habits.csv")
-            
-            completed = pd.DataFrame([[habit_name, "Habit", pd.to_datetime(datetime.today().date())]],
-                                 columns = ['Name', 'Type', 'Date'])
-            completed.to_sql("Completed", conn, if_exists='append', index=False)
-            df = pd.read_sql("SELECT * FROM Completed", conn)
-            df['Date'] = pd.to_datetime(df['Date'])
-            df.to_csv("Completed.csv", index=False)
+        goal_name  = request.values.get('goal')
+        goals_l = list(progress['Goal Name'].values)
+        goals_l.pop(goals_l.index(goal_name))
+        goals_l = [goal_name] + goals_l
+        
+        progress_data = {"Progress Name": goal_name}
 
-            return render_template("Habits.html", habits=habit_names,template="Flask")
-
-        else:
-            habit_names = list(habits['Habit Name'].values)
-            habit_names.pop(habit_names.index(habit_name))
-            habit_names = [habit_name] + habit_names
-            
-            temp = habits.set_index('Habit Name').loc[habit_name]
-            habit_data = {}
-            habit_data = {"Habit Name": habit_name,
-                          "Frequency": temp['Frequency'],
-                          "Group": temp['Group'],
-                          "Start Date": temp['Start Date'],
-                          "Units": temp['Units'],
-                          "Streak": temp['Object'].streak}
-            
-            return render_template("Habits.html", habits=habit_names,habit_data=habit_data,template="Flask")
+        return render_template("Create/View Progress.html", goals=goals_l, template="Flask",
+                               progress_data = progress_data)
 
         
     
-    return render_template("Create/Update Progress.html", goals=goals_l, template="Flask")
+    return render_template("Create/View Progress.html", goals=goals_l, template="Flask")
 
 
 def update_choices():
