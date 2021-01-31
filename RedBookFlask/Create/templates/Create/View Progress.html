@@ -19,7 +19,8 @@
       <form action={{ url_for('create.view_progress_page') }} method="POST" >
 
  <input type="hidden" id="progress" name="progress" value='{{ progress_data["Progress Name"] }}'>
-   </form>
+  <input type="submit" value="Retire Progress">
+  </form>
 {% endif %}
 
 {% endblock %}

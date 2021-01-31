@@ -479,14 +479,24 @@ def view_progress_page():
         
     if request.method == 'POST':
         goal_name  = request.values.get('goal')
-        goals_l = list(progress['Goal Name'].values)
-        goals_l.pop(goals_l.index(goal_name))
-        goals_l = [goal_name] + goals_l
-        
-        progress_data = {"Progress Name": goal_name}
-
-        return render_template("Create/View Progress.html", goals=goals_l, template="Flask",
-                               progress_data = progress_data)
+        if goal_name is None:
+            goal_name  = request.values.get('progress')
+            
+            
+            goals_l = list(progress['Goal Name'].values)
+            goals_l.pop(goals_l.index(goal_name))
+            
+    
+            return render_template("Create/View Progress.html", goals=goals_l, template="Flask")
+        else:
+            goals_l = list(progress['Goal Name'].values)
+            goals_l.pop(goals_l.index(goal_name))
+            goals_l = [goal_name] + goals_l
+            
+            progress_data = {"Progress Name": goal_name}
+    
+            return render_template("Create/View Progress.html", goals=goals_l, template="Flask",
+                                   progress_data = progress_data)
 
         
     
