@@ -31,6 +31,8 @@ def flash_errors(form):
                 getattr(form, field).label.text,
                 error
             ), 'error')
+            
+            
 
 def form_to_pandas(form):
     data = {"Goal Name": form.goal_name.data,
@@ -484,7 +486,19 @@ def view_progress_page():
             
             
             goals_l = list(progress['Goal Name'].values)
-            goals_l.pop(goals_l.index(goal_name))
+            
+            try:
+                g2 = pd.read_sql("SELECT * FROM goals", conn)
+                g2 = g2[g2['Completed'] != 'Completed']
+                g2 = list(g2['Progress Name'].values)
+            except:
+                g2 = []
+
+            if goal_name in g2:
+                flash("Can't retire progress because goals are still using it.", "error")
+            else:
+                print("Delete here")
+                goals_l.pop(goals_l.index(goal_name))
             
     
             return render_template("Create/View Progress.html", goals=goals_l, template="Flask")

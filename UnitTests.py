@@ -147,9 +147,16 @@ class BasicTests(unittest.TestCase):
         response = self.app.get('/Create/Goals', follow_redirects=True)     
         self.assertEqual(response.status_code, 200)
         soup = BeautifulSoup(response.data, 'html.parser')
-        print(soup)
         
-    
+        progress_name_select = soup.find("select", attrs={"id": "progress_name_select"})
+        progress_name_select = progress_name_select.find_all('option')
+        progress_name_select = [x.text for x in progress_name_select]
+        self.assertEqual(progress_name_select, ['Read Book 1', 'Read Book 2'])
+        
+        group_name_select = soup.find("select", attrs={"id": "group_name_select"})
+        group_name_select = group_name_select.find_all('option')
+        group_name_select = [x.text for x in group_name_select]
+        self.assertEqual(group_name_select, ['Projects', 'Reading'])        
         
         
         
