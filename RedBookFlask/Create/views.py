@@ -497,7 +497,19 @@ def view_progress_page():
             if goal_name in g2:
                 flash("Can't retire progress because goals are still using it.", "error")
             else:
-                print("Delete here")
+                with sqlite3.connect(database_name) as conn:
+                    conn.cursor().execute("UPDATE progress_params SET Completed = 'Completed' WHERE `Goal Name` = '{}'".format(goal_name))
+                    conn.commit()
+                    df = pd.read_sql("SELECT * FROM progress_params", conn)
+                    df.to_csv("progress_params.csv", index=False)
+        
+                    
+                    completed = pd.DataFrame([[goal_name, "Progress", pd.to_datetime(datetime.today().date())]],
+                                         columns = ['Name', 'Type', 'Date'])
+                    completed.to_sql("Completed", conn, if_exists='append', index=False)
+                    df = pd.read_sql("SELECT * FROM Completed", conn)
+                    df['Date'] = pd.to_datetime(df['Date'])
+                    df.to_csv("Completed.csv", index=False)
                 goals_l.pop(goals_l.index(goal_name))
             
     
