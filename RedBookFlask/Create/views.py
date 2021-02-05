@@ -272,7 +272,9 @@ def update_progress_page():
                                    template="Flask")
     with sqlite3.connect(database_name) as conn:
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
-        extra = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+        extra = pd.read_sql("SELECT * FROM progress_params", conn)
+        extra = extra[extra['Completed'] != 'Completed']
+        extra =  list(extra['Goal Name'].unique())
         goals_l = list(goals['Progress Name'].unique())
         goals_l = goals_l + [x for x in extra if x not in goals_l]
     if request.method == 'POST':
@@ -477,6 +479,7 @@ def view_progress_page():
             return render_template("ErrorPage.html", error=error,
                                    template="Flask")
         progress = pd.read_sql("SELECT * FROM progress_params", conn)
+        progress = progress[progress['Completed'] != "Completed"]
         goals_l = list(progress['Goal Name'].values)
         
     if request.method == 'POST':
@@ -500,8 +503,8 @@ def view_progress_page():
                 with sqlite3.connect(database_name) as conn:
                     conn.cursor().execute("UPDATE progress_params SET Completed = 'Completed' WHERE `Goal Name` = '{}'".format(goal_name))
                     conn.commit()
-                    df = pd.read_sql("SELECT * FROM progress_params", conn)
-                    df.to_csv("progress_params.csv", index=False)
+                    progress = pd.read_sql("SELECT * FROM progress_params", conn)
+                    progress.to_csv("progress_params.csv")
         
                     
                     completed = pd.DataFrame([[goal_name, "Progress", pd.to_datetime(datetime.today().date())]],
@@ -533,7 +536,9 @@ def update_choices():
     with sqlite3.connect(database_name) as conn:
         existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
         try:
-            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+            existing_progress = pd.read_sql("SELECT * FROM progress_params", conn)
+            existing_progress = existing_progress[existing_progress['Completed'] != 'Completed']
+            existing_progress = list(existing_progress['Goal Name'].values)
         except:
             existing_progress = []
             
@@ -557,7 +562,9 @@ class GoalForm(FlaskForm):
     try:
         with sqlite3.connect(database_name) as conn:
             existing_groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
-            existing_progress = list(pd.read_sql("SELECT * FROM progress", conn)['Goal Name'].unique())
+            existing_progress = pd.read_sql("SELECT * FROM progress_params", conn)
+            existing_progress = existing_progress[existing_progress['Completed'] != 'Completed']
+            existing_progress = list(existing_progress['Goal Name'].values)
             existing_goals = list(pd.read_sql("SELECT * FROM goals", conn)['Goal Name'].unique())
     except:
         existing_groups = []
