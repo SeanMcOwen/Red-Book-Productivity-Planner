@@ -2,11 +2,25 @@ import RedBook
 import pandas as pd
 import sqlite3
 from datetime import datetime
-
+import numpy as np
 
 database_name = 'Goals.db'
 
+def create_schedule(start_progress, goal_progress, start_date, end_date, restricted_dates):
+    schedule = pd.Series(np.NaN, index=pd.date_range(start_date, end_date))
+    schedule = schedule[[x not in restricted_dates for x in schedule.index]]
+    schedule.loc[schedule.index[0] - pd.Timedelta("1D")] = start_progress
+    schedule = schedule.sort_index()
+    schedule.iloc[-1] = goal_progress
+    schedule = schedule.interpolate()
+    schedule = schedule.reindex(pd.date_range(start_date- pd.Timedelta("1D"), end_date))
+    schedule = schedule.fillna(method='ffill').fillna(method='bfill')
+    return schedule
 
+def weekday_restrictions(start_date, end_date, days):
+    dates = pd.date_range(start_date-pd.Timedelta("1D"), end_date)
+    dates = [x for x in dates if x.weekday() in days]
+    return dates
 
 def minimum_effective_date(goals, days_behind):
     min_date = goals['Object'].apply(lambda x: min(x.effective_schedule_dates.values()))
@@ -126,9 +140,12 @@ with sqlite3.connect(database_name) as conn:
     #expected_progress_table, expected_work_table, percent_left_table, expected_work_tables = RedBook.Tables.build_expected_work_tables(goals)
     #RedBook.Data.filter_increment_hiding(goals, expected_work_tables)
     #print(RedBook.Data.check_table_exists(conn, 'groups'))
-    #tables 
+    #tables
+    restricted_dates = []
+    restricted_dates.extend(weekday_restrictions(datetime(2019,1,1), datetime(2020,1,1), [4, 5,6]))
     
-    
+    print(create_schedule(0, 100, datetime(2019,1,1), datetime(2020,1,1), restricted_dates))
+    """ 
     goals, work_log = RedBook.Data.process_goals_SQL(conn)
     goal_rules = pd.read_sql("SELECT * FROM rules", conn)
     goal_rules['Object'] = goal_rules[~goal_rules['Rule Type'].isin(['AND', 'OR'])].apply(lambda rule: GoalRule(rule['Rule Type'], find_arguments(rule)), axis=1)
@@ -139,7 +156,7 @@ with sqlite3.connect(database_name) as conn:
             rtype = goal_rules.loc[rule_name, 'Rule Type']
             goal_rules.loc[rule_name, 'Object'] = GoalRule(rtype, args)
     
-    """    
+       
     habits, progress = RedBook.Data.process_habits_SQL(conn)
     
     r1 = HabitRule("HC", [.1])
