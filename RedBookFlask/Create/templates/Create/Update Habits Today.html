@@ -1,0 +1,28 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+
+
+<table>
+  {% for g in habits %}
+  <form action={{ url_for('create.update_habits_today_page') }} method="POST" >
+  <tr>
+  <td>
+{{ g }}
+</td>
+<td>
+
+<input type="text" id="update_val" name="update_val" value=0>
+ <input type="hidden" id="habit" name="habit" value='{{ g }}'>
+ <input type="hidden" id="date" name="date" value=0>
+   </td>
+   <td>
+   <input type="submit" value="Update Progress">
+   </td>
+   </tr>
+   </form>
+  {% endfor %}
+</table>
+
+{% endblock %}

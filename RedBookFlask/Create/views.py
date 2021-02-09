@@ -437,6 +437,19 @@ def update_habits_page():
             return render_template("Create/Update Habits.html", habits=habits_l, work_log=work_log, habit=habit_name, template="Flask")
     return render_template("Create/Update Habits.html", habits=list(habits['Habit Name'].unique()), template="Flask")
 
+
+@create_blueprint.route("/Update Habits Today",methods=['GET', 'POST'])
+def update_habits_today_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'habits'):
+            error = "<h3>Please create a habit.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
+    with sqlite3.connect(database_name) as conn:
+        habits, work_log = RedBook.Data.process_habits_SQL(conn)
+    
+    return render_template("Create/Update Habits Today.html", habits=list(habits['Habit Name'].unique()), template="Flask")
+
 @create_blueprint.route("/Habits",methods=['GET', 'POST'])
 def habits_page():
     with sqlite3.connect(database_name) as conn:
