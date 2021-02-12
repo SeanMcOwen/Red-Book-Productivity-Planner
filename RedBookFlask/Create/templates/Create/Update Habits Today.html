@@ -5,7 +5,7 @@
 
 
 <table>
-  {% for g in habits %}
+  {% for g, v in habits|zip(vals) %}
   <form action={{ url_for('create.update_habits_today_page') }} method="POST" >
   <tr>
   <td>
@@ -13,9 +13,9 @@
 </td>
 <td>
 
-<input type="text" id="update_val" name="update_val" value=0>
+<input type="text" id="update_val" name="update_val" value={{v}}>
  <input type="hidden" id="habit" name="habit" value='{{ g }}'>
- <input type="hidden" id="date" name="date" value=0>
+ <input type="hidden" id="date" name="date" value={{ date }}>
    </td>
    <td>
    <input type="submit" value="Update Progress">

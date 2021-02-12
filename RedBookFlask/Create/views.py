@@ -447,8 +447,20 @@ def update_habits_today_page():
                                    template="Flask")
     with sqlite3.connect(database_name) as conn:
         habits, work_log = RedBook.Data.process_habits_SQL(conn)
-    
-    return render_template("Create/Update Habits Today.html", habits=list(habits['Habit Name'].unique()), template="Flask")
+        
+    if request.method == 'POST':
+        habit_name  = request.values.get('habit')
+        update_val  = request.values.get('update_val')
+        update_date  = request.values.get('date')
+        print(update_date)
+        print(update_val)
+        print(habit_name)
+    try:
+        vals = work_log.loc[datetime.today().date()].fillna(0)
+    except:
+        vals = pd.Series(0, index=work_log.columns)
+    return render_template("Create/Update Habits Today.html", habits=list(habits['Habit Name'].unique()), vals=vals, date=datetime.today().date(), 
+                           template="Flask")
 
 @create_blueprint.route("/Habits",methods=['GET', 'POST'])
 def habits_page():

@@ -20,6 +20,7 @@ database_name = 'Goals.db'
 with sqlite3.connect(database_name) as conn:
     excel_to_db(conn)
 app = Flask(__name__)
+app.jinja_env.filters['zip'] = zip
 
 
 from RedBookFlask.Schedules.views import schedules_blueprint
