@@ -452,14 +452,40 @@ def update_habits_today_page():
         habit_name  = request.values.get('habit')
         update_val  = request.values.get('update_val')
         update_date  = request.values.get('date')
-        print(update_date)
-        print(update_val)
-        print(habit_name)
+        update_date = pd.to_datetime(datetime.strptime(update_date, "%Y-%m-%d"))
+        
+        c = conn.cursor()
+        c.execute('''DELETE FROM habits_progress WHERE `Habit Name` = '{}' AND Date = datetime('{}')'''.format(habit_name, update_date.strftime('%Y-%m-%d %H:%M:%S')))
+        conn.commit()
+            
+        if update_val == "":
+            #Just delete if exists
+            pass
+        else:
+            upload = pd.Series([update_val, update_date, habit_name], index=['Progress', 'Date', 'Habit Name'])
+            upload = upload.to_frame().transpose()
+            upload.to_sql("habits_progress", conn, if_exists='append', index=False)
+                
+        work_log = pd.read_sql("SELECT * FROM habits_progress", conn)
+        work_log.to_csv("Habits Progress.csv")
+            
+        with sqlite3.connect(database_name) as conn:
+            habits, work_log = RedBook.Data.process_habits_SQL(conn)
+        hl = list(habits['Habit Name'].unique())
+        try:
+            vals = work_log.loc[datetime.today().date()].reindex(index=hl).fillna(0)
+        except:
+            vals = pd.Series(0, index=hl)
+        return render_template("Create/Update Habits Today.html", habits=hl, vals=vals, date=datetime.today().date(), 
+                           template="Flask")
+        
+    hl = list(habits['Habit Name'].unique())
     try:
-        vals = work_log.loc[datetime.today().date()].fillna(0)
+        vals = work_log.loc[datetime.today().date()].reindex(index=hl).fillna(0)
     except:
-        vals = pd.Series(0, index=work_log.columns)
-    return render_template("Create/Update Habits Today.html", habits=list(habits['Habit Name'].unique()), vals=vals, date=datetime.today().date(), 
+        vals = pd.Series(0, index=hl)
+   
+    return render_template("Create/Update Habits Today.html", habits=hl, vals=vals, date=datetime.today().date(), 
                            template="Flask")
 
 @create_blueprint.route("/Habits",methods=['GET', 'POST'])
