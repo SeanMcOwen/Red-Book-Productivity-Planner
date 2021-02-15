@@ -341,6 +341,29 @@ def update_progress_page():
             return render_template("Create/Update Progress.html", goals=goals_l, work_log=work_log, goal=goal_name, template="Flask")
     return render_template("Create/Update Progress.html", goals=goals_l, template="Flask")
 
+
+@create_blueprint.route("/Update Progress Today",methods=['GET', 'POST'])
+def update_progress_today_page():
+    with sqlite3.connect(database_name) as conn:
+        if not RedBook.Data.check_table_exists(conn, 'progress'):
+            error = "<h3>Please create a progress task.</h3>"
+            return render_template("ErrorPage.html", error=error,
+                                   template="Flask")
+    with sqlite3.connect(database_name) as conn:
+        goals, work_log = RedBook.Data.process_goals_SQL(conn)
+        extra = pd.read_sql("SELECT * FROM progress_params", conn)
+        extra = extra[extra['Completed'] != 'Completed']
+        extra =  list(extra['Goal Name'].unique())
+        goals_l = list(goals['Progress Name'].unique())
+        goals_l = goals_l + [x for x in extra if x not in goals_l]
+    
+    try:
+        vals = work_log.loc[datetime.today().date()].reindex(index=goals_l).fillna(0)
+    except:
+        vals = pd.Series("", index=goals_l)
+    assert False, "FIX THIS TO NOT BE FROM THE WORK_LOG BUT INSTEAD PROGRESS LOG"        
+    return render_template("Create/Update Progress Today.html", goals=goals_l, vals=vals, date=datetime.today().date(), template="Flask")
+
 @create_blueprint.route("/Update Tasks",methods=['GET', 'POST'])
 def update_tasks_page():
     with sqlite3.connect(database_name) as conn:

@@ -1,0 +1,28 @@
+{% extends "Base.html" %}
+
+{% block content %}
+
+
+<table>
+  {% for g, v in goals|zip(vals) %}
+  <form action={{ url_for('create.update_progress_today_page') }} method="POST" >
+  <tr>
+  <td>
+{{ g }}
+</td>
+<td>
+
+<input type="text" id="update_val" name="update_val" value={{v}}>
+ <input type="hidden" id="goal" name="goal" value='{{ g }}'>
+ <input type="hidden" id="date" name="date" value={{ date }}>
+   </td>
+   <td>
+   <input type="submit" value="Update Progress">
+   </td>
+   </tr>
+   </form>
+  {% endfor %}
+</table>
+
+
+{% endblock %}
