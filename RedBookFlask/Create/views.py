@@ -356,13 +356,54 @@ def update_progress_today_page():
         extra =  list(extra['Goal Name'].unique())
         goals_l = list(goals['Progress Name'].unique())
         goals_l = goals_l + [x for x in extra if x not in goals_l]
-    
+        
+        progress = pd.read_sql("SELECT * FROM progress", conn).pivot("Date", "Goal Name", "Value")
+        progress.index = pd.to_datetime(progress.index)
+        
+        
+    if request.method == 'POST':
+        goal_name  = request.values.get('goal')
+        update_val  = request.values.get('update_val')
+        update_date  = request.values.get('date')
+        update_date = pd.to_datetime(datetime.strptime(update_date, "%m/%d/%Y"))
+        c = conn.cursor()
+        c.execute('''DELETE FROM progress WHERE `Goal Name` = '{}' AND Date = datetime('{}')'''.format(goal_name, update_date.strftime('%Y-%m-%d %H:%M:%S')))
+        conn.commit()
+        
+        if update_val == "":
+                #Just delete if exists
+                pass
+        else:
+            upload = pd.Series([update_val, update_date, goal_name], index=['Value', 'Date', 'Goal Name'])
+            upload = upload.to_frame().transpose()
+            upload.to_sql("progress", conn, if_exists='append', index=False)
+                
+        work_log = pd.read_sql("SELECT * FROM progress", conn).pivot("Date", "Goal Name", "Value")
+        work_log.to_csv("project_log.csv")
+        
+        with sqlite3.connect(database_name) as conn:
+            goals, work_log = RedBook.Data.process_goals_SQL(conn)
+            extra = pd.read_sql("SELECT * FROM progress_params", conn)
+            extra = extra[extra['Completed'] != 'Completed']
+            extra =  list(extra['Goal Name'].unique())
+            goals_l = list(goals['Progress Name'].unique())
+            goals_l = goals_l + [x for x in extra if x not in goals_l]
+            
+            progress = pd.read_sql("SELECT * FROM progress", conn).pivot("Date", "Goal Name", "Value")
+            progress.index = pd.to_datetime(progress.index)
+            try:
+                vals = progress.loc[datetime.today().date()].reindex(index=goals_l).fillna("")
+            except:
+                vals = pd.Series("", index=goals_l)
+                
+            return render_template("Create/Update Progress Today.html", goals=goals_l, vals=vals, date=datetime.today().date().strftime("%m/%d/%Y") , template="Flask")
+
     try:
-        vals = work_log.loc[datetime.today().date()].reindex(index=goals_l).fillna(0)
+        vals = progress.loc[datetime.today().date()].reindex(index=goals_l).fillna("")
     except:
         vals = pd.Series("", index=goals_l)
-    assert False, "FIX THIS TO NOT BE FROM THE WORK_LOG BUT INSTEAD PROGRESS LOG"        
-    return render_template("Create/Update Progress Today.html", goals=goals_l, vals=vals, date=datetime.today().date(), template="Flask")
+    
+    return render_template("Create/Update Progress Today.html", goals=goals_l, vals=vals, date=datetime.today().date().strftime("%m/%d/%Y") , template="Flask")
 
 @create_blueprint.route("/Update Tasks",methods=['GET', 'POST'])
 def update_tasks_page():
