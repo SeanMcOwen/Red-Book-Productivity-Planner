@@ -142,8 +142,8 @@ class BasicTests(unittest.TestCase):
         self.assertEqual((progress_values == expected).all().all(), True)
 
         progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
-        expected = np.array([['Read Book 1', 1.0, 'Progress'],
-                             ['Read Book 2', 1.0,'Progress']], dtype=object)
+        expected = np.array([['Read Book 1', 1.0, 'Progress', ""],
+                             ['Read Book 2', 1.0,'Progress', ""]], dtype=object)
         self.assertEqual((progress_values == expected).all().all(), True)
         
         response = self.app.get('/Create/Goals', follow_redirects=True)     
@@ -151,6 +151,10 @@ class BasicTests(unittest.TestCase):
         soup = BeautifulSoup(response.data, 'html.parser')
         
         progress_name_select = soup.find("select", attrs={"id": "progress_name_select"})
+        
+        
+
+        
         progress_name_select = progress_name_select.find_all('option')
         progress_name_select = [x.text for x in progress_name_select]
         self.assertEqual(progress_name_select, ['Read Book 1', 'Read Book 2'])

@@ -241,8 +241,8 @@ def progress_page():
                                      starting_value
                                      ], index=['Date', 'Goal Name', 'Value']).to_frame().transpose()
         add2 = pd.Series([progress_name,
-                                     units, progress_type
-                                     ], index=['Goal Name', 'Units', 'Progress Type']).to_frame().transpose()
+                                     units, progress_type, ""
+                                     ], index=['Goal Name', 'Units', 'Progress Type', 'Completed']).to_frame().transpose()
         with sqlite3.connect(database_name) as conn:
             add.to_sql("progress", conn, if_exists='append', index=False)
             df = pd.read_sql("SELECT * FROM progress", conn).pivot("Date", "Goal Name", "Value")
