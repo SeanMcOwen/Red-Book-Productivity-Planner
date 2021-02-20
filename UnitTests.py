@@ -5,6 +5,7 @@ import sqlite3
 import pandas as pd
 from Create_Databases import excel_to_db
 import RedBook, RedBookBokeh
+from datetime import datetime
 
 from threading import Thread
 from tornado.ioloop import IOLoop
@@ -77,6 +78,7 @@ class BasicTests(unittest.TestCase):
     
 
     def test_case1(self):
+        today = pd.to_datetime(datetime.today().date())
         response = self.app.get('/', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         
@@ -158,6 +160,17 @@ class BasicTests(unittest.TestCase):
         group_name_select = [x.text for x in group_name_select]
         self.assertEqual(group_name_select, ['Projects', 'Reading'])        
         
+        response = self.app.post(
+          '/Create/Goals',
+          data = dict(goal_name = 'Read Book 1',
+                      group_name = "Reading",
+                      progress_name = 'Read Book 1',
+                      goal_progress = 300,
+                      start_date = today,
+                      end_date = today + pd.Timedelta("50D")),
+          follow_redirects=True
+          )
+        self.assertEqual(response.status_code, 200)
         
         
         
