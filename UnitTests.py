@@ -162,21 +162,58 @@ class BasicTests(unittest.TestCase):
         group_name_select = soup.find("select", attrs={"id": "group_name_select"})
         group_name_select = group_name_select.find_all('option')
         group_name_select = [x.text for x in group_name_select]
-        self.assertEqual(group_name_select, ['Projects', 'Reading'])        
+        self.assertEqual(group_name_select, ['Projects', 'Reading'])  
+        
+        progress_name_select = soup.find("select", attrs={"id": "progress_name_select"})
+        progress_name_select = progress_name_select.find_all('option')
+        progress_name_select = [x.text for x in progress_name_select]
+        self.assertEqual(progress_name_select, ['Read Book 1', 'Read Book 2'])  
+        
+        
+        
+        
+        response = self.app.post(
+          '/Create/Goals',
+          data = dict(goal_name = 'Read Book 2',
+                      group_name_select = "Reading",
+                      progress_name_select = 'Read Book 2',
+                      end_progress = 500,
+                      start_date = (today + pd.Timedelta("10D")).date(),
+                      end_date = (today + pd.Timedelta("50D")).date(),
+                      today = 1,
+            week= 1,
+            month =  1,
+            quarter = 1,
+            year = 1,
+            historical = 1),
+          
+          follow_redirects=True
+          )
+        print(response.data)
+        self.assertEqual(response.status_code, 200)
+        
+        goals, work_log = RedBook.Data.process_goals_SQL(conn)
+        print(goals)
         
         response = self.app.post(
           '/Create/Goals',
           data = dict(goal_name = 'Read Book 1',
-                      group_name = "Reading",
-                      progress_name = 'Read Book 1',
-                      goal_progress = 300,
-                      start_date = today,
-                      end_date = today + pd.Timedelta("50D")),
+                      group_name_select = "Reading",
+                      progress_name_select = 'Read Book 1',
+                      end_progress = 300,
+                      start_date = (today).date(),
+                      end_date = (today + pd.Timedelta("50D")).date(),
+                      today = 1,
+            week= 1,
+            month =  1,
+            quarter = 1,
+            year = 1,
+            historical = 1),
           follow_redirects=True
           )
         self.assertEqual(response.status_code, 200)
-        
-        
+        goals, work_log = RedBook.Data.process_goals_SQL(conn)
+        print(goals)
         
 if __name__ == "__main__":
     unittest.main()

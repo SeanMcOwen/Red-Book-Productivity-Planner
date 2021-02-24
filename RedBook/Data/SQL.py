@@ -31,6 +31,9 @@ def process_goals_SQL(conn):
     work_log, params = pull_work_log_SQL(goals, conn)
     goals = goals[goals['Completed'] != "Completed"]
     goals = goals[goals['Start Date'] <= datetime.now()]
+    goals['Object'] = ""
+    goals['Start Progress'] = ""
+    
     #Bump forward due date
     goals['End Date'] = goals['End Date'].apply(lambda x: max(x, pd.to_datetime(datetime.now().date())))
     
@@ -41,8 +44,9 @@ def process_goals_SQL(conn):
         x['Units'] = params.loc[x['Progress Name'], 'Units']
         
         return Goal(x, wl)
-    goals['Object'] = goals.apply(apply_function, axis=1)
-    goals['Start Progress'] = goals['Object'].apply(lambda x: x.start_progress)
+    if len(goals) > 0:
+        goals['Object'] = goals.apply(apply_function, axis=1)
+        goals['Start Progress'] = goals['Object'].apply(lambda x: x.start_progress)
     return goals, work_log
 
 
