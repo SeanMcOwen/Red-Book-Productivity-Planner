@@ -19,7 +19,25 @@ from RedBookFlask import app
 
 database_name = 'Goals.db'
 
-
+def test_connectivity(self):
+        response = self.app.get('/', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.app.get('/Create/Goals', follow_redirects=True)        
+        self.assertIn("Please create a group before creating goals.", str(response.data))
+        
+        
+        response = self.app.get('/Create/Group', follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        
+        
+def check_groups(self, groups1):
+    with sqlite3.connect(database_name) as conn:
+        groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
+    self.assertEqual(groups1, groups)
+    
+        
+        
 class BasicTests(unittest.TestCase):
  
     ############################
@@ -76,18 +94,13 @@ class BasicTests(unittest.TestCase):
         if "_Goals.db" in os.listdir("."):
             os.rename("_Goals.db" , "Goals.db")
     
+    
 
     def test_case1(self):
         today = pd.to_datetime(datetime.today().date())
-        response = self.app.get('/', follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
+        groups = []
         
-        response = self.app.get('/Create/Goals', follow_redirects=True)        
-        self.assertIn("Please create a group before creating goals.", str(response.data))
-        
-        
-        response = self.app.get('/Create/Group', follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
+        test_connectivity(self)
         
         response = self.app.post(
           '/Create/Group',
@@ -95,7 +108,8 @@ class BasicTests(unittest.TestCase):
           follow_redirects=True
           )
         self.assertEqual(response.status_code, 200)
-        
+        groups.append("Projects")
+        check_groups(self, groups)
         
         response = self.app.post(
           '/Create/Group',
@@ -103,12 +117,10 @@ class BasicTests(unittest.TestCase):
           follow_redirects=True
           )
         self.assertEqual(response.status_code, 200)
+        groups.append("Reading")
         
-        
-        with sqlite3.connect(database_name) as conn:
-            groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
-        self.assertEqual(groups, ["Projects", "Reading"])
-        
+
+        check_groups(self, groups)
         
         response = self.app.get('/Create/Goals', follow_redirects=True)        
         self.assertIn("Please create a progress object before creating goals.", str(response.data))
@@ -137,7 +149,8 @@ class BasicTests(unittest.TestCase):
           )
         self.assertEqual(response.status_code, 200)
         
-        progress_values = pd.read_sql("SELECT * FROM progress", conn)[["Goal Name", "Value"]].values
+        with sqlite3.connect(database_name) as conn:
+            progress_values = pd.read_sql("SELECT * FROM progress", conn)[["Goal Name", "Value"]].values
         expected = np.array([['Read Book 1',0.0], ['Read Book 2', 20.0]], dtype=object)
         self.assertEqual((progress_values == expected).all().all(), True)
 
@@ -189,11 +202,9 @@ class BasicTests(unittest.TestCase):
           
           follow_redirects=True
           )
-        print(response.data)
         self.assertEqual(response.status_code, 200)
         
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
-        print(goals)
         
         response = self.app.post(
           '/Create/Goals',
@@ -213,7 +224,6 @@ class BasicTests(unittest.TestCase):
           )
         self.assertEqual(response.status_code, 200)
         goals, work_log = RedBook.Data.process_goals_SQL(conn)
-        print(goals)
         
 if __name__ == "__main__":
     unittest.main()
