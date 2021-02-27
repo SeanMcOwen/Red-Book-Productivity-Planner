@@ -19,7 +19,7 @@ from RedBookFlask import app
 
 database_name = 'Goals.db'
 
-def test_connectivity(self):
+def test_connectivity1(self):
         response = self.app.get('/', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         
@@ -29,15 +29,37 @@ def test_connectivity(self):
         
         response = self.app.get('/Create/Group', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        
+
+def test_connectivity2(self):
+    response = self.app.get('/Create/Goals', follow_redirects=True)        
+    self.assertIn("Please create a progress object before creating goals.", str(response.data))
         
 def check_groups(self, groups1):
     with sqlite3.connect(database_name) as conn:
         groups = list(pd.read_sql("SELECT * FROM groups", conn)['Group'].values)
     self.assertEqual(groups1, groups)
+
+def create_group(self, group):
+    response = self.app.post(
+          '/Create/Group',
+          data = dict(group_name=group),
+          follow_redirects=True
+          )
+    self.assertEqual(response.status_code, 200)
     
+
+def create_progress(self, progress, progress_type, units, starting_value):
+    response = self.app.post(
+          '/Create/Progress',
+          data = dict(progress_name=progress,
+                      progress_type=progress_type,
+                      units=units,
+                      starting_value=starting_value),
+          follow_redirects=True
+          )
+    self.assertEqual(response.status_code, 200)
         
-        
+
 class BasicTests(unittest.TestCase):
  
     ############################
@@ -99,59 +121,33 @@ class BasicTests(unittest.TestCase):
     def test_case1(self):
         today = pd.to_datetime(datetime.today().date())
         groups = []
+        progress = []
         
-        test_connectivity(self)
+        test_connectivity1(self)
         
-        response = self.app.post(
-          '/Create/Group',
-          data = dict(group_name="Projects"),
-          follow_redirects=True
-          )
-        self.assertEqual(response.status_code, 200)
+        create_group(self, "Projects")
         groups.append("Projects")
         check_groups(self, groups)
         
-        response = self.app.post(
-          '/Create/Group',
-          data = dict(group_name="Reading"),
-          follow_redirects=True
-          )
-        self.assertEqual(response.status_code, 200)
+        create_group(self, "Reading")
         groups.append("Reading")
-        
-
         check_groups(self, groups)
         
-        response = self.app.get('/Create/Goals', follow_redirects=True)        
-        self.assertIn("Please create a progress object before creating goals.", str(response.data))
+        test_connectivity2(self)
         
         
         response = self.app.get('Create/Progress', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
         
-        response = self.app.post(
-          '/Create/Progress',
-          data = dict(progress_name="Read Book 1",
-                      progress_type="Progress",
-                      units=1,
-                      starting_value=0),
-          follow_redirects=True
-          )
-        self.assertEqual(response.status_code, 200)
-        
-        response = self.app.post(
-          '/Create/Progress',
-          data = dict(progress_name="Read Book 2",
-                      progress_type="Progress",
-                      units=1,
-                      starting_value=20),
-          follow_redirects=True
-          )
-        self.assertEqual(response.status_code, 200)
+        create_progress(self, "Read Book 1", "Progress", 1, 0)
+        create_progress(self, "Read Book 2", "Progress", 1, 20)
+
         
         with sqlite3.connect(database_name) as conn:
             progress_values = pd.read_sql("SELECT * FROM progress", conn)[["Goal Name", "Value"]].values
+        
         expected = np.array([['Read Book 1',0.0], ['Read Book 2', 20.0]], dtype=object)
+
         self.assertEqual((progress_values == expected).all().all(), True)
 
         progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
