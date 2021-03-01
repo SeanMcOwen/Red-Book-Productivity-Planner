@@ -59,7 +59,11 @@ def create_progress(self, progress, progress_type, units, starting_value):
           )
     self.assertEqual(response.status_code, 200)
         
-
+def check_progress_log(self, expected):
+    with sqlite3.connect(database_name) as conn:
+        progress_values = pd.read_sql("SELECT * FROM progress", conn)[["Goal Name", "Value"]].values
+    self.assertEqual((progress_values == expected).all().all(), True)
+    
 class BasicTests(unittest.TestCase):
  
     ############################
@@ -143,14 +147,13 @@ class BasicTests(unittest.TestCase):
         create_progress(self, "Read Book 2", "Progress", 1, 20)
 
         
-        with sqlite3.connect(database_name) as conn:
-            progress_values = pd.read_sql("SELECT * FROM progress", conn)[["Goal Name", "Value"]].values
+        
         
         expected = np.array([['Read Book 1',0.0], ['Read Book 2', 20.0]], dtype=object)
-
-        self.assertEqual((progress_values == expected).all().all(), True)
-
-        progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
+        check_progress_log(self, expected)
+        
+        with sqlite3.connect(database_name) as conn:
+            progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
         expected = np.array([['Read Book 1', 1.0, 'Progress', ""],
                              ['Read Book 2', 1.0,'Progress', ""]], dtype=object)
         self.assertEqual((progress_values == expected).all().all(), True)
