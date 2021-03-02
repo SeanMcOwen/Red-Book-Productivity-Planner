@@ -47,6 +47,11 @@ def create_group(self, group):
           )
     self.assertEqual(response.status_code, 200)
     
+def create_check_group(self, groups, groups_add):
+    for group in groups_add:
+        create_group(self, group)
+        groups.append(group)
+        check_groups(self, groups)
 
 def create_progress(self, progress, progress_type, units, starting_value):
     response = self.app.post(
@@ -58,11 +63,27 @@ def create_progress(self, progress, progress_type, units, starting_value):
           follow_redirects=True
           )
     self.assertEqual(response.status_code, 200)
+    
+    
+def create_check_progress(self, progress, progress_params, progress_add):
+    for p in progress_add:
+        temp = [self] + p
+        create_progress(*temp)
+        progress.append([temp[1], temp[4]])
+        progress_params.append([temp[1], temp[3], temp[2], ""])
+        check_progress_log(self, np.array(progress, dtype=object))
+        check_progress_params(self, np.array(progress_params, dtype=object))
         
 def check_progress_log(self, expected):
     with sqlite3.connect(database_name) as conn:
         progress_values = pd.read_sql("SELECT * FROM progress", conn)[["Goal Name", "Value"]].values
     self.assertEqual((progress_values == expected).all().all(), True)
+    
+    
+def check_progress_params(self, expected):
+    with sqlite3.connect(database_name) as conn:
+        progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
+    self.assertEqual((progress_values == expected).all(), True)
     
 class BasicTests(unittest.TestCase):
  
@@ -126,37 +147,18 @@ class BasicTests(unittest.TestCase):
         today = pd.to_datetime(datetime.today().date())
         groups = []
         progress = []
+        progress_params = []
         
         test_connectivity1(self)
-        
-        create_group(self, "Projects")
-        groups.append("Projects")
-        check_groups(self, groups)
-        
-        create_group(self, "Reading")
-        groups.append("Reading")
-        check_groups(self, groups)
-        
+        create_check_group(self, groups, ["Projects", "Reading"])
         test_connectivity2(self)
         
         
         response = self.app.get('Create/Progress', follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        
-        create_progress(self, "Read Book 1", "Progress", 1, 0)
-        create_progress(self, "Read Book 2", "Progress", 1, 20)
+        create_check_progress(self, progress, progress_params, [["Read Book 1", "Progress", 1, 0],
+                                                                ["Read Book 2", "Progress", 1, 20]])
 
-        
-        
-        
-        expected = np.array([['Read Book 1',0.0], ['Read Book 2', 20.0]], dtype=object)
-        check_progress_log(self, expected)
-        
-        with sqlite3.connect(database_name) as conn:
-            progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
-        expected = np.array([['Read Book 1', 1.0, 'Progress', ""],
-                             ['Read Book 2', 1.0,'Progress', ""]], dtype=object)
-        self.assertEqual((progress_values == expected).all().all(), True)
         
         response = self.app.get('/Create/Goals', follow_redirects=True)     
         self.assertEqual(response.status_code, 200)
@@ -202,8 +204,8 @@ class BasicTests(unittest.TestCase):
           follow_redirects=True
           )
         self.assertEqual(response.status_code, 200)
-        
-        goals, work_log = RedBook.Data.process_goals_SQL(conn)
+        with sqlite3.connect(database_name) as conn:
+            goals, work_log = RedBook.Data.process_goals_SQL(conn)
         
         response = self.app.post(
           '/Create/Goals',
