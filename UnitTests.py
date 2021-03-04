@@ -52,6 +52,16 @@ def create_check_group(self, groups, groups_add):
         create_group(self, group)
         groups.append(group)
         check_groups(self, groups)
+        
+def check_goals_page_progress(self, progress):
+    response = self.app.get('/Create/Goals', follow_redirects=True)     
+    self.assertEqual(response.status_code, 200)
+    soup = BeautifulSoup(response.data, 'html.parser')
+    progress_name_select = soup.find("select", attrs={"id": "progress_name_select"})
+    
+    progress_name_select = progress_name_select.find_all('option')
+    progress_name_select = [x.text for x in progress_name_select]
+    self.assertEqual(progress_name_select, list(np.array(progress)[:,0]))
 
 def create_progress(self, progress, progress_type, units, starting_value):
     response = self.app.post(
@@ -160,28 +170,22 @@ class BasicTests(unittest.TestCase):
                                                                 ["Read Book 2", "Progress", 1, 20]])
 
         
-        response = self.app.get('/Create/Goals', follow_redirects=True)     
-        self.assertEqual(response.status_code, 200)
-        soup = BeautifulSoup(response.data, 'html.parser')
-        
-        progress_name_select = soup.find("select", attrs={"id": "progress_name_select"})
+        check_goals_page_progress(self, progress)
         
         
 
         
-        progress_name_select = progress_name_select.find_all('option')
-        progress_name_select = [x.text for x in progress_name_select]
-        self.assertEqual(progress_name_select, ['Read Book 1', 'Read Book 2'])
         
-        group_name_select = soup.find("select", attrs={"id": "group_name_select"})
-        group_name_select = group_name_select.find_all('option')
-        group_name_select = [x.text for x in group_name_select]
-        self.assertEqual(group_name_select, ['Projects', 'Reading'])  
         
-        progress_name_select = soup.find("select", attrs={"id": "progress_name_select"})
-        progress_name_select = progress_name_select.find_all('option')
-        progress_name_select = [x.text for x in progress_name_select]
-        self.assertEqual(progress_name_select, ['Read Book 1', 'Read Book 2'])  
+        #group_name_select = soup.find("select", attrs={"id": "group_name_select"})
+        #group_name_select = group_name_select.find_all('option')
+        #group_name_select = [x.text for x in group_name_select]
+        #self.assertEqual(group_name_select, ['Projects', 'Reading'])  
+        
+        #progress_name_select = soup.find("select", attrs={"id": "progress_name_select"})
+        #progress_name_select = progress_name_select.find_all('option')
+        #progress_name_select = [x.text for x in progress_name_select]
+        #self.assertEqual(progress_name_select, ['Read Book 1', 'Read Book 2'])  
         
         
         
