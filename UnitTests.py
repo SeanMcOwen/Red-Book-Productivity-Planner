@@ -53,7 +53,7 @@ def create_check_group(self, groups, groups_add):
         groups.append(group)
         check_groups(self, groups)
         
-def check_goals_page_progress(self, progress):
+def check_goals_page_widgets(self, progress, groups):
     response = self.app.get('/Create/Goals', follow_redirects=True)     
     self.assertEqual(response.status_code, 200)
     soup = BeautifulSoup(response.data, 'html.parser')
@@ -62,6 +62,11 @@ def check_goals_page_progress(self, progress):
     progress_name_select = progress_name_select.find_all('option')
     progress_name_select = [x.text for x in progress_name_select]
     self.assertEqual(progress_name_select, list(np.array(progress)[:,0]))
+    
+    group_name_select = soup.find("select", attrs={"id": "group_name_select"})
+    group_name_select = group_name_select.find_all('option')
+    group_name_select = [x.text for x in group_name_select]
+    self.assertEqual(group_name_select, groups)
 
 def create_progress(self, progress, progress_type, units, starting_value):
     response = self.app.post(
@@ -168,31 +173,15 @@ class BasicTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         create_check_progress(self, progress, progress_params, [["Read Book 1", "Progress", 1, 0],
                                                                 ["Read Book 2", "Progress", 1, 20]])
-
-        
-        check_goals_page_progress(self, progress)
+        check_goals_page_widgets(self, progress, groups)
         
         
 
         
         
         
-        #group_name_select = soup.find("select", attrs={"id": "group_name_select"})
-        #group_name_select = group_name_select.find_all('option')
-        #group_name_select = [x.text for x in group_name_select]
-        #self.assertEqual(group_name_select, ['Projects', 'Reading'])  
-        
-        #progress_name_select = soup.find("select", attrs={"id": "progress_name_select"})
-        #progress_name_select = progress_name_select.find_all('option')
-        #progress_name_select = [x.text for x in progress_name_select]
-        #self.assertEqual(progress_name_select, ['Read Book 1', 'Read Book 2'])  
-        
-        
-        
-        
-        response = self.app.post(
-          '/Create/Goals',
-          data = dict(goal_name = 'Read Book 2',
+        goals_to_add = []
+        goals_to_add.append(dict(goal_name = 'Read Book 2',
                       group_name_select = "Reading",
                       progress_name_select = 'Read Book 2',
                       end_progress = 500,
@@ -203,17 +192,9 @@ class BasicTests(unittest.TestCase):
             month =  1,
             quarter = 1,
             year = 1,
-            historical = 1),
-          
-          follow_redirects=True
-          )
-        self.assertEqual(response.status_code, 200)
-        with sqlite3.connect(database_name) as conn:
-            goals, work_log = RedBook.Data.process_goals_SQL(conn)
+            historical = 1))
         
-        response = self.app.post(
-          '/Create/Goals',
-          data = dict(goal_name = 'Read Book 1',
+        goals_to_add.append(dict(goal_name = 'Read Book 1',
                       group_name_select = "Reading",
                       progress_name_select = 'Read Book 1',
                       end_progress = 300,
@@ -224,7 +205,22 @@ class BasicTests(unittest.TestCase):
             month =  1,
             quarter = 1,
             year = 1,
-            historical = 1),
+            historical = 1))
+        
+        
+        response = self.app.post(
+          '/Create/Goals',
+          data = goals_to_add[0],
+          
+          follow_redirects=True
+          )
+        self.assertEqual(response.status_code, 200)
+        with sqlite3.connect(database_name) as conn:
+            goals, work_log = RedBook.Data.process_goals_SQL(conn)
+        
+        response = self.app.post(
+          '/Create/Goals',
+          data = goals_to_add[1],
           follow_redirects=True
           )
         self.assertEqual(response.status_code, 200)
