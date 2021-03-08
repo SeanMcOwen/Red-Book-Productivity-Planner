@@ -100,6 +100,44 @@ def check_progress_params(self, expected):
         progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
     self.assertEqual((progress_values == expected).all(), True)
     
+def create_goal(self, goal, goals_list):
+    response = self.app.post(
+          '/Create/Goals',
+          data = goal,
+          follow_redirects=True
+          )
+    self.assertEqual(response.status_code, 200)
+    goals_list.append(goal)
+    
+today = pd.to_datetime(datetime.today().date())
+goals_to_add = []
+goals_to_add.append(dict(goal_name = 'Read Book 2',
+                      group_name_select = "Reading",
+                      progress_name_select = 'Read Book 2',
+                      end_progress = 500,
+                      start_date = (today + pd.Timedelta("10D")).date(),
+                      end_date = (today + pd.Timedelta("50D")).date(),
+                      today = 1,
+            week= 1,
+            month =  1,
+            quarter = 1,
+            year = 1,
+            historical = 1))
+        
+goals_to_add.append(dict(goal_name = 'Read Book 1',
+                      group_name_select = "Reading",
+                      progress_name_select = 'Read Book 1',
+                      end_progress = 300,
+                      start_date = (today).date(),
+                      end_date = (today + pd.Timedelta("50D")).date(),
+                      today = 1,
+            week= 1,
+            month =  1,
+            quarter = 1,
+            year = 1,
+            historical = 1))
+        
+        
 class BasicTests(unittest.TestCase):
  
     ############################
@@ -159,10 +197,10 @@ class BasicTests(unittest.TestCase):
     
 
     def test_case1(self):
-        today = pd.to_datetime(datetime.today().date())
         groups = []
         progress = []
         progress_params = []
+        goals_list = []
         
         test_connectivity1(self)
         create_check_group(self, groups, ["Projects", "Reading"])
@@ -175,56 +213,8 @@ class BasicTests(unittest.TestCase):
                                                                 ["Read Book 2", "Progress", 1, 20]])
         check_goals_page_widgets(self, progress, groups)
         
-        
-
-        
-        
-        
-        goals_to_add = []
-        goals_to_add.append(dict(goal_name = 'Read Book 2',
-                      group_name_select = "Reading",
-                      progress_name_select = 'Read Book 2',
-                      end_progress = 500,
-                      start_date = (today + pd.Timedelta("10D")).date(),
-                      end_date = (today + pd.Timedelta("50D")).date(),
-                      today = 1,
-            week= 1,
-            month =  1,
-            quarter = 1,
-            year = 1,
-            historical = 1))
-        
-        goals_to_add.append(dict(goal_name = 'Read Book 1',
-                      group_name_select = "Reading",
-                      progress_name_select = 'Read Book 1',
-                      end_progress = 300,
-                      start_date = (today).date(),
-                      end_date = (today + pd.Timedelta("50D")).date(),
-                      today = 1,
-            week= 1,
-            month =  1,
-            quarter = 1,
-            year = 1,
-            historical = 1))
-        
-        
-        response = self.app.post(
-          '/Create/Goals',
-          data = goals_to_add[0],
-          
-          follow_redirects=True
-          )
-        self.assertEqual(response.status_code, 200)
-        with sqlite3.connect(database_name) as conn:
-            goals, work_log = RedBook.Data.process_goals_SQL(conn)
-        
-        response = self.app.post(
-          '/Create/Goals',
-          data = goals_to_add[1],
-          follow_redirects=True
-          )
-        self.assertEqual(response.status_code, 200)
-        goals, work_log = RedBook.Data.process_goals_SQL(conn)
+        create_goal(self, goals_to_add[0], goals_list)
+        create_goal(self, goals_to_add[1], goals_list)
         
 if __name__ == "__main__":
     unittest.main()
