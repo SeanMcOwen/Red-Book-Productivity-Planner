@@ -67,6 +67,12 @@ def check_goals_page_widgets(self, progress, groups):
     group_name_select = group_name_select.find_all('option')
     group_name_select = [x.text for x in group_name_select]
     self.assertEqual(group_name_select, groups)
+    
+def check_view_goals_page_widgets(self, goals_list):
+    response = self.app.get('/Goals/Goals', follow_redirects=True)     
+    self.assertEqual(response.status_code, 200)
+    soup = BeautifulSoup(response.data, 'html.parser')
+    print(soup)
 
 def create_progress(self, progress, progress_type, units, starting_value):
     response = self.app.post(
@@ -100,13 +106,15 @@ def check_progress_params(self, expected):
         progress_values = pd.read_sql("SELECT * FROM progress_params", conn).values
     self.assertEqual((progress_values == expected).all(), True)
     
-def create_goal(self, goal, goals_list):
+def create_goal(self, goal, goals_list, active_goals):
     response = self.app.post(
           '/Create/Goals',
           data = goal,
           follow_redirects=True
           )
     self.assertEqual(response.status_code, 200)
+    if goal['start_date'] >= today:
+        active_goals.append(goal)
     goals_list.append(goal)
     
 today = pd.to_datetime(datetime.today().date())
@@ -137,7 +145,20 @@ goals_to_add.append(dict(goal_name = 'Read Book 1',
             year = 1,
             historical = 1))
         
-        
+
+goals_to_add.append(dict(goal_name = '100 Hours Yoga',
+                      group_name_select = "Exercise",
+                      progress_name_select = "Practice Yoga",
+                      end_progress = 100,
+                      start_date = (today).date(),
+                      end_date = (today + pd.Timedelta("100D")).date(),
+                      today = 1,
+            week= 1,
+            month =  1,
+            quarter = 1,
+            year = 1,
+            historical = 1))
+
 class BasicTests(unittest.TestCase):
  
     ############################
@@ -201,6 +222,7 @@ class BasicTests(unittest.TestCase):
         progress = []
         progress_params = []
         goals_list = []
+        active_goals = []
         
         test_connectivity1(self)
         create_check_group(self, groups, ["Projects", "Reading"])
@@ -213,8 +235,16 @@ class BasicTests(unittest.TestCase):
                                                                 ["Read Book 2", "Progress", 1, 20]])
         check_goals_page_widgets(self, progress, groups)
         
-        create_goal(self, goals_to_add[0], goals_list)
-        create_goal(self, goals_to_add[1], goals_list)
+        create_goal(self, goals_to_add[0], goals_list, active_goals)
+        create_goal(self, goals_to_add[1], goals_list, active_goals)
+        
+        check_view_goals_page_widgets(self, goals_list)
+        
+        create_check_group(self, groups, ["Exercise"])
+        create_check_progress(self, progress, progress_params, [["Practice Yoga", "Add", 60, 0]])
+        check_goals_page_widgets(self, progress, groups)
+        create_goal(self, goals_to_add[2], goals_list, active_goals)
+        check_view_goals_page_widgets(self, active_goals)
         
 if __name__ == "__main__":
     unittest.main()
